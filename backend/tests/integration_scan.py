@@ -46,4 +46,20 @@ with tempfile.TemporaryDirectory(prefix="pipelineguard-ci-project-") as root:
         listing = client.get("/api/reports", headers=headers, params={"directory": str(Path(root).resolve())})
         assert listing.status_code == 200, listing.text
         assert any(item["path"] == str(report_path) for item in listing.json()["files"])
-        print("Offline scan, history, JSON export, preview and listing: PASS")
+        html_export = client.post("/api/reports/export", headers=headers, json={
+            "scan_id": scan_id, "format": "html", "directory": str(Path(root).resolve())
+        })
+        assert html_export.status_code == 200, html_export.text
+        html_path = Path(html_export.json()["path"])
+        assert html_path.is_file()
+        html_content = html_path.read_text(encoding="utf-8")
+        assert "<!doctype html>" in html_content.lower()
+        assert "Security Report" in html_content
+        html_preview = client.get("/api/reports/content", headers=headers, params={"path": str(html_path)})
+        assert html_preview.status_code == 200, html_preview.text
+        assert html_preview.json()["format"] == "html"
+        assert html_preview.json()["content"] == html_content
+        html_listing = client.get("/api/reports", headers=headers, params={"directory": str(Path(root).resolve())})
+        assert html_listing.status_code == 200, html_listing.text
+        assert any(item["path"] == str(html_path) and item["format"] == "html" for item in html_listing.json()["files"])
+        print("Offline scan, history, JSON and HTML exports, previews and listing: PASS")

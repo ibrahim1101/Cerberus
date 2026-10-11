@@ -570,3 +570,8 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Reran the failed job; attempt 2 succeeded, confirming installer build and smoke checks passed without application code changes.
 - `45cb21f` adds up to three bounded Chocolatey NSIS install attempts with increasing delays, and checks the actual compiler path before failing. No alternate untrusted download source introduced.
 - Pending: CI on this workflow change, interactive Windows installation and Locat scan validation. Separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Scan monitor regression tests
+- Verified NSIS retry hardening CI: `38161647824` and `38161654649` packaged sidecar success; corresponding UI CI green.
+- Added `frontend/src/components/scan/ScanMonitor.test.jsx` (`c9cbb4b`) with rendered React tests for final scanned/reused/skipped/discovered metrics, running-state suppression, and backward compatibility with bridge states lacking metrics.
+- Pending: new frontend CI, physical Windows and Locat scans. Separate PipelineGuard repository untouched.

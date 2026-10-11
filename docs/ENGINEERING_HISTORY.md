@@ -564,3 +564,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `ab2e82a`: backend completed scan state now includes secret scan accounting metrics from report (when available).
 - `25214c5`: scan monitor displays scanned/reused/skipped/discovered totals separately from the engine progress-event counter. This clarifies the previously observed 255/256 progress number without asserting the physical root cause.
 - Pending: CI for these commits, regression coverage of UI metric rendering, physical Locat rescan and Windows confirmation. Separate PipelineGuard repository untouched.
+
+### 2026-10-11 — Windows NSIS packaging resilience
+- Sidecar workflow run `38156601839` failed on first attempt due to Chocolatey community feed HTTP 504 fetching NSIS; the standalone payload had built and uploaded, and the native bridge process check passed.
+- Reran the failed job; attempt 2 succeeded, confirming installer build and smoke checks passed without application code changes.
+- `45cb21f` adds up to three bounded Chocolatey NSIS install attempts with increasing delays, and checks the actual compiler path before failing. No alternate untrusted download source introduced.
+- Pending: CI on this workflow change, interactive Windows installation and Locat scan validation. Separate PipelineGuard repository untouched.

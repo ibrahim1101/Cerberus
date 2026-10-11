@@ -260,6 +260,21 @@ jobs:
           if ($uninstall.ExitCode -ne 0) { throw "Uninstaller exited with $($uninstall.ExitCode)" }
           Start-Sleep -Seconds 2
           if (Test-Path (Join-Path $target 'Cerberus.exe')) { throw 'Uninstall left native executable behind' }
+      - name: Generate SHA-256 checksum for Windows installer
+        shell: pwsh
+        run: |
+          $installer = (Resolve-Path dist/Cerberus-Setup-0.1.0.exe).Path
+          $hash = (Get-FileHash -Path $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          $checksumPath = Join-Path (Resolve-Path dist).Path 'SHA256SUMS.txt'
+          [System.IO.File]::WriteAllText($checksumPath, "$hash  Cerberus-Setup-0.1.0.exe`n")
+          Write-Host "Installer SHA-256: $hash"
+          if (-not (Test-Path $checksumPath)) { throw 'Installer checksum output missing' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-nsis-installer-checksum
+          path: dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
           name: cerberus-windows-nsis-installer-preview

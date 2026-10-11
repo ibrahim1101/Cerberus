@@ -20,6 +20,7 @@ Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/pip
 - [ ] Rescan Locat; record exact fixture findings and final discovered/scanned/reused/skipped counts. Investigate any true-positive loss or unexplained discrepancy.
 - [ ] Check Settings, History, error states and filesystem access; verify no credentials or secret values appear in logs/reports unexpectedly.
 - [ ] Check installer with Windows Defender/SmartScreen; clearly disclose unsigned beta status if applicable.
+- [ ] Verify installer checksum CI artifact (`cerberus-windows-nsis-installer-checksum`) matches the uploaded `Cerberus-Setup-0.1.0.exe` from the **same run**.
 - [ ] Create GitHub pre-release `v0.1.0-beta.1` with tested installer, SHA-256 checksum, installation steps, known limitations and CI links. Do not publish until above evidence is captured.
 
 ## Portfolio/job-application deliverables

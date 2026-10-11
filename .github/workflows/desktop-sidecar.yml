@@ -215,10 +215,16 @@ jobs:
       - name: Build per-user NSIS installer from validated standalone payload
         shell: pwsh
         run: |
-          choco install nsis --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { throw 'NSIS installation failed' }
           $compiler = "${env:ProgramFiles(x86)}\\NSIS\\makensis.exe"
-          if (-not (Test-Path $compiler)) { throw 'NSIS compiler missing' }
+          if (-not (Test-Path $compiler)) {
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              Write-Host "Installing NSIS via Chocolatey (attempt $attempt/3)"
+              choco install nsis --yes --no-progress --limit-output
+              if ((Test-Path $compiler)) { break }
+              if ($attempt -lt 3) { Start-Sleep -Seconds (10 * $attempt) }
+            }
+          }
+          if (-not (Test-Path $compiler)) { throw 'NSIS compiler missing after three Chocolatey attempts' }
           $payload = (Resolve-Path dist/cerberus-standalone).Path
           $output = Join-Path (Resolve-Path dist).Path "Cerberus-Setup-0.1.0.exe"
           & $compiler /V2 "/DCERBERUS_PAYLOAD=$payload" "/DCERBERUS_OUTPUT=$output" desktop/installer/cerberus.nsi

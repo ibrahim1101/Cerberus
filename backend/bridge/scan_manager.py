@@ -58,7 +58,7 @@ class ScanManager:
                 "config": str(config) if config else None, "profile": selected.name,
                 "online_requested": online, "online_effective": effective, "stages": stages,
                 "current_stage": None, "progress": 0.0, "files_discovered": None, "files_processed": None,
-                "files_cached": None, "findings_detected": 0, "error": None, "result": None,
+                "files_cached": None, "secret_scan_metrics": None, "findings_detected": 0, "error": None, "result": None,
                 "started_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             }
             state = dict(self._state)
@@ -114,6 +114,12 @@ class ScanManager:
             return
         with self._lock:
             cache = report.get("secret_cache") or {}
+            if isinstance(cache, dict) and isinstance(cache.get("discovered"), int):
+                self._state["secret_scan_metrics"] = {
+                    key: cache.get(key) for key in (
+                        "discovered", "scanned", "reused", "skipped_size",
+                        "skipped_changed", "skipped_error")
+                }
             files = self._state["files_discovered"] if self._state["files_discovered"] is not None else cache.get("discovered")
             meta = {"scan_id": state["scan_id"], "project": state["project"], "config": state["config"],
                     "profile": state["profile"], "online_requested": state["online_requested"],

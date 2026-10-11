@@ -575,3 +575,8 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Verified NSIS retry hardening CI: `38161647824` and `38161654649` packaged sidecar success; corresponding UI CI green.
 - Added `frontend/src/components/scan/ScanMonitor.test.jsx` (`c9cbb4b`) with rendered React tests for final scanned/reused/skipped/discovered metrics, running-state suppression, and backward compatibility with bridge states lacking metrics.
 - Pending: new frontend CI, physical Windows and Locat scans. Separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Fix scan monitor test module resolution
+- GitHub Actions run `38166155311` failed in React lifecycle regression tests: Jest could not resolve `@/context/AppContext` from the new `ScanMonitor.test.jsx`. The Python bridge smoke jobs (Ubuntu and Windows) and local scanner precision tests passed.
+- Commit `adbf339` replaces the test's alias-based import and mock target with a relative AppContext path compatible with Jest resolution. Production application code unchanged.
+- Pending: verify frontend CI rerun on the fix, and complete physical Windows and Locat scans.

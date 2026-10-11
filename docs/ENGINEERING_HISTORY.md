@@ -543,3 +543,10 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - **Commits:** `b673a76`, `4bb962b`, `58b7b96` (GitHub write confirmed).
 - **Validation:** Commits confirmed; CI and actual Windows/Locat physical rescan remain unverified. Do not claim a physical pass.
 - **Next:** Inspect CI, fix any test failures, then validate HTML export, scan-count diagnostics, desktop UI and Windows installer.
+
+
+### 2026-10-11 — CI scanner gate verified; HTML report integration coverage
+- **Verified CI:** `38151159022` completed successfully after dedicated local scanner precision and cache regression job was added (`fd25d2c`). Earlier desktop shell, managed bridge and Windows packaging runs also succeeded.
+- **New regression:** `backend/tests/integration_scan.py` now exercises HTML export, generated file, HTML preview content and format, and report listing after a completed offline scan, in addition to existing JSON export checks.
+- **Commit:** `e1728d1`. CI for this new commit pending; physical Windows HTML export and Locat rescan still pending.
+- **Next:** Inspect HTML integration CI; investigate scan-count skipped metrics; perform Windows physical verification. Separate PipelineGuard repository untouched.

@@ -68,6 +68,11 @@ def write_html_report(report: dict[str, Any], output: Path) -> None:
             + " · Skipped (size): " + count("skipped_size")
             + " · Skipped (changed): " + count("skipped_changed")
             + " · Skipped (error): " + count("skipped_error")
+            + " · Accounted: " + escape(str(sum(cache.get(key, 0) for key in (
+                "scanned", "reused", "skipped_size", "skipped_changed", "skipped_error"))
+                if all(type(cache.get(key)) is int for key in (
+                    "scanned", "reused", "skipped_size", "skipped_changed", "skipped_error"))
+                else "Not measured"))
             + "</p><p>Files below the cache threshold are scanned directly on each run; "
               "a zero reuse count does not by itself indicate a cache failure.</p></section>"
         )

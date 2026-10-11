@@ -4,6 +4,9 @@ import ScanMonitor from "./ScanMonitor";
 import { useApp } from "../../context/AppContext";
 
 jest.mock("../../context/AppContext", () => ({ useApp: jest.fn() }));
+jest.mock("../ui/button", () => ({ Button: ({ children, ...props }) => <button {...props}>{children}</button> }));
+jest.mock("../common/Panel", () => ({ Panel: ({ children }) => <section>{children}</section>, InlineError: ({ message }) => <div>{message}</div> }));
+jest.mock("../common/Badges", () => ({ StatusPill: () => <span /> }));
 jest.mock("react-router-dom", () => ({ useNavigate: () => jest.fn() }));
 global.IS_REACT_ACT_ENVIRONMENT = true;
 

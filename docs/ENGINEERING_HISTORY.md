@@ -585,3 +585,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Latest CI on `91799b9` failed React lifecycle tests due to Jest resolving an alias import `@/lib/utils` transitively through `ScanMonitor`'s Button component. Python bridge Ubuntu/Windows and local scanner regressions passed.
 - Commit `e09a16f` mocks UI-only dependencies (`Button`, `Panel`, `StatusPill`) at their relative paths in the ScanMonitor rendering regression suite, keeping the scan-accounting behavior under test while avoiding unrelated alias dependencies.
 - Release checklist at `docs/RELEASE_GATE_V0.1.0_BETA.md` remains binding. New frontend CI and physical Windows/Locat validation pending. No release published and separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Release hardening retry: installer checksum
+- Verified UI CI run `38168821443` and packaged Windows sidecar run `38168821468` passed at `518cbd02`; desktop shell validation run `38168806236` passed on preceding code commit.
+- Commit `2538bfd` adds a SHA-256 checksum generation step after successful silent installer/uninstaller smoke testing and uploads `SHA256SUMS.txt` as a separate 7-day artifact. Hash corresponds to `Cerberus-Setup-0.1.0.exe` from the same workflow.
+- Commit `7516f2d` adds same-run checksum verification to beta release gate.
+- Pending: verify fresh CI, match checksum to exact distributed installer, and complete physical Windows/Locat acceptance. No release published. Separate PipelineGuard repository untouched.

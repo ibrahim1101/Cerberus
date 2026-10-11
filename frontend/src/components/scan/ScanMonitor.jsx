@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Check, Circle, Loader2, MinusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useApp } from "@/context/AppContext";
-import { InlineError, Panel } from "@/components/common/Panel";
-import { StatusPill } from "@/components/common/Badges";
-import { fmtDuration } from "@/lib/format";
+import { Button } from "../ui/button";
+import { useApp } from "../../context/AppContext";
+import { InlineError, Panel } from "../common/Panel";
+import { StatusPill } from "../common/Badges";
+import { fmtDuration } from "../../lib/format";
 
 const StageIcon = ({ state }) => {
   if (state === "done") return <Check className="h-4 w-4 text-pg-accent" />;

@@ -558,3 +558,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - **Report:** `1866371` adds an explicit Accounted total to the HTML secret scan performance section, distinguishing processed and skipped files rather than assuming all discovered files were scanned.
 - **Pending:** CI for these commits, physical Locat scan to determine why the user saw 255/256, and Windows HTML report inspection. The exact cause of the user's physical count remains unverified.
 - **Scope:** Only CERBERUS UI repository changed; separate PipelineGuard untouched.
+
+### 2026-10-11 — Live scan monitor accounting clarity
+- Verified prior CI at `93b977f`: UI and packaged sidecar succeeded, as did earlier desktop and bridge checks.
+- `ab2e82a`: backend completed scan state now includes secret scan accounting metrics from report (when available).
+- `25214c5`: scan monitor displays scanned/reused/skipped/discovered totals separately from the engine progress-event counter. This clarifies the previously observed 255/256 progress number without asserting the physical root cause.
+- Pending: CI for these commits, regression coverage of UI metric rendering, physical Locat rescan and Windows confirmation. Separate PipelineGuard repository untouched.

@@ -13,7 +13,7 @@ from scanners.traversal import iter_files
 # This is an experimental threshold pending platform-specific benchmarks.
 MIN_CACHE_BYTES = 1024
 # Increment when scanner interpretation changes without changing regex patterns.
-SCANNER_SEMANTICS_VERSION = 2
+SCANNER_SEMANTICS_VERSION = 3
 
 
 

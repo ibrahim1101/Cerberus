@@ -1,9 +1,9 @@
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import ScanMonitor from "./ScanMonitor";
-import { useApp } from "@/context/AppContext";
+import { useApp } from "../../context/AppContext";
 
-jest.mock("@/context/AppContext", () => ({ useApp: jest.fn() }));
+jest.mock("../../context/AppContext", () => ({ useApp: jest.fn() }));
 jest.mock("react-router-dom", () => ({ useNavigate: () => jest.fn() }));
 global.IS_REACT_ACT_ENVIRONMENT = true;
 

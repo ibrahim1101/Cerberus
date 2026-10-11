@@ -550,3 +550,11 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - **New regression:** `backend/tests/integration_scan.py` now exercises HTML export, generated file, HTML preview content and format, and report listing after a completed offline scan, in addition to existing JSON export checks.
 - **Commit:** `e1728d1`. CI for this new commit pending; physical Windows HTML export and Locat rescan still pending.
 - **Next:** Inspect HTML integration CI; investigate scan-count skipped metrics; perform Windows physical verification. Separate PipelineGuard repository untouched.
+
+
+### 2026-10-11 — Secret scan counter reconciliation
+- **Baseline:** HTML export integration and sidecar CI succeeded at `7081da9` (runs `38152373587`, `38152373553`).
+- **Regression:** `0383f29` asserts `discovered = scanned + reused + skipped_size + skipped_changed + skipped_error` on cold/warm scans of a mixed tiny, large, oversized fixture.
+- **Report:** `1866371` adds an explicit Accounted total to the HTML secret scan performance section, distinguishing processed and skipped files rather than assuming all discovered files were scanned.
+- **Pending:** CI for these commits, physical Locat scan to determine why the user saw 255/256, and Windows HTML report inspection. The exact cause of the user's physical count remains unverified.
+- **Scope:** Only CERBERUS UI repository changed; separate PipelineGuard untouched.

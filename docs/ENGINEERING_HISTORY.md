@@ -580,3 +580,8 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - GitHub Actions run `38166155311` failed in React lifecycle regression tests: Jest could not resolve `@/context/AppContext` from the new `ScanMonitor.test.jsx`. The Python bridge smoke jobs (Ubuntu and Windows) and local scanner precision tests passed.
 - Commit `adbf339` replaces the test's alias-based import and mock target with a relative AppContext path compatible with Jest resolution. Production application code unchanged.
 - Pending: verify frontend CI rerun on the fix, and complete physical Windows and Locat scans.
+
+### 2026-10-12 — CERBERUS release sprint: frontend CI unblock
+- Latest CI on `91799b9` failed React lifecycle tests due to Jest resolving an alias import `@/lib/utils` transitively through `ScanMonitor`'s Button component. Python bridge Ubuntu/Windows and local scanner regressions passed.
+- Commit `e09a16f` mocks UI-only dependencies (`Button`, `Panel`, `StatusPill`) at their relative paths in the ScanMonitor rendering regression suite, keeping the scan-accounting behavior under test while avoiding unrelated alias dependencies.
+- Release checklist at `docs/RELEASE_GATE_V0.1.0_BETA.md` remains binding. New frontend CI and physical Windows/Locat validation pending. No release published and separate PipelineGuard repository untouched.

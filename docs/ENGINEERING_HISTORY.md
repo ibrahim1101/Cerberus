@@ -533,3 +533,13 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - User supplied Windows CERBERUS screenshot showing fresh Locat scan with 4 findings: 3 critical generic secret assignments and 1 warning (dependency check incomplete), down from 18 (17 critical and 1 warning). This validates that the installed correction reduced previously reported detections by 14; does not establish all removed findings were false positives.
 - Remaining generic secret assignments displayed at `src/lib/messaging.integration.test.ts` lines 140 and 550 and a truncated `src/lib/password.test...` at line 17. Exact values/evidence not yet reviewed. Release remains BLOCKED. OSV status shows Not checked, meaning connectivity has not been checked; dependency analysis warning remains.
 - Next: inspect masked evidence and surrounding redacted source for three remaining findings, validate HTML export, and separately explain discovered/processed file counts. No blanket suppression of test secrets.
+
+
+### 2026-10-11 — Locat synthetic fixture precision and cache invalidation
+- **Scope:** Only `ibrahim1101/pipelineguard-ui` main; separate PipelineGuard repository untouched.
+- **Change:** Scanner suppresses exact verified synthetic password assignments (`test-password-long`, `oldpass8`, `incorrect`, `Velvet Orchard Moonlight`) in test/spec files. Unknown credentials, non-password assignments and high-confidence token rules retain detection.
+- **Cache:** Bumped `SCANNER_SEMANTICS_VERSION` from 2 to 3 to invalidate stale secret finding results.
+- **Regression tests:** Added Locat fixture, non-test, unknown credential, token-field and mixed-line token checks.
+- **Commits:** `b673a76`, `4bb962b`, `58b7b96` (GitHub write confirmed).
+- **Validation:** Commits confirmed; CI and actual Windows/Locat physical rescan remain unverified. Do not claim a physical pass.
+- **Next:** Inspect CI, fix any test failures, then validate HTML export, scan-count diagnostics, desktop UI and Windows installer.

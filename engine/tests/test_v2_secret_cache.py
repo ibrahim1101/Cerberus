@@ -246,3 +246,20 @@ def test_scanner_semantics_version_invalidates_existing_cache(tmp_path, monkeypa
     monkeypatch.setattr(secret_cache, "scan_text", spy)
     scan_secrets_incremental(root, set(), 10000)
     assert calls == [1]
+
+
+def test_scan_metrics_account_for_every_discovered_file(tmp_path, monkeypatch):
+    root, target = _setup(tmp_path, monkeypatch)
+    target.write_text("safe " * 300)
+    (root / "tiny.txt").write_text("safe")
+    (root / "oversize.txt").write_text("X" * 12000)
+    for iteration in range(2):
+        counts = {}
+        scan_secrets_incremental(root, set(), 10000, metrics=counts)
+        accounted = (counts["scanned"] + counts["reused"] + counts["skipped_size"]
+                     + counts["skipped_changed"] + counts["skipped_error"])
+        assert counts["discovered"] == accounted, counts
+        assert counts["discovered"] == 3
+        assert counts["skipped_size"] == 1
+        if iteration:
+            assert counts["reused"] == 1

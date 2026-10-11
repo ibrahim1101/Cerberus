@@ -28,6 +28,8 @@ export default function ScanMonitor() {
   }
   const files = s.files_discovered == null ? "—" : `${s.files_processed ?? "—"} / ${s.files_discovered}`;
   const done = s.status === "completed" && latest?.scan_id === s.scan_id;
+  const metrics = s.status === "completed" ? s.secret_scan_metrics : null;
+  const skipped = metrics ? ["skipped_size", "skipped_changed", "skipped_error"].reduce((n, k) => n + (metrics[k] ?? 0), 0) : null;
   return (
     <Panel title="Scan monitor" description={`${s.profile} profile · ${s.online_effective ? "online" : "offline"}`} testId="scan-monitor"
       actions={<span className="text-xs font-mono text-pg-muted" data-testid="scan-monitor-status">{s.status}</span>}>
@@ -50,6 +52,7 @@ export default function ScanMonitor() {
         <Stat label="Files processed" value={files} testId="scan-files" />
         <Stat label="Findings detected" value={s.findings_detected ?? 0} testId="scan-findings-count" />
       </div>
+      {metrics && <p className="mt-2 text-xs text-pg-muted" data-testid="scan-file-accounting">Secret scan: {metrics.scanned ?? "—"} scanned · {metrics.reused ?? "—"} reused · {skipped} skipped · {metrics.discovered ?? "—"} discovered. Files processed above reflects engine progress events.</p>}
       {s.status === "failed" && <div className="mt-4"><InlineError message={s.error} testId="scan-error" /></div>}
       {done && (
         <div className="mt-4 rounded-xl border border-pg-line bg-pg-bg/50 p-4" data-testid="scan-result-summary">

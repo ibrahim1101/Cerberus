@@ -7,7 +7,7 @@ from scanners.traversal import iter_files
 
 SKIP_DIRECTORIES = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
 MAX_FILE_SIZE = 1_000_000
-SAFE_PLACEHOLDER_WORDS = {"fake", "example", "sample", "test", "placeholder", "dummy"}
+SYNTHETIC_TEST_PASSWORDS = frozenset({"test-password-long", "oldpass8", "incorrect", "Velvet Orchard Moonlight"})
 
 RULES = (
     ("AWS access key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
@@ -42,12 +42,16 @@ def scan_text(content: str, relative: str) -> list[dict[str, object]]:
     for line_number, line in enumerate(content.splitlines(), 1):
         for rule_name, pattern in RULES:
             if pattern.search(line):
-                # Exempt only a known synthetic password in test fixtures.
-                is_test = relative.replace(chr(92), "/").endswith((".test.ts", ".spec.ts", ".test.js", ".spec.js"))
-                matches = list(pattern.finditer(line))
-                only_dummy = all(m.group(0).endswith(('"test-password-long"', "'test-password-long'")) for m in matches)
-                if rule_name == "Generic secret assignment" and is_test and only_dummy:
-                    continue
+                # Exact fixture passwords only; never suppress unknown credentials or token rules.
+                is_test = relative.replace(chr(92), "/").endswith((".test.ts", ".spec.ts", ".test.js", ".spec.js", ".test.tsx", ".spec.tsx", ".test.jsx", ".spec.jsx"))
+                if rule_name == "Generic secret assignment" and is_test:
+                    matches = list(pattern.finditer(line))
+                    if all(
+                        m.group(0).split(":", 1)[-1].split("=", 1)[-1].strip()[1:-1] in SYNTHETIC_TEST_PASSWORDS
+                        and m.group(0).split(":", 1)[0].split("=", 1)[0].strip().lower() in {"password", "passwd"}
+                        for m in matches
+                    ):
+                        continue
                 findings.append({"severity": "CRITICAL", "rule": rule_name,
                     "confidence": "high" if rule_name != "Generic secret assignment" else "medium",
                     "file": relative, "line": line_number})

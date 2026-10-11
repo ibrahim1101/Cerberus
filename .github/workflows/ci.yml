@@ -39,6 +39,21 @@ jobs:
           REACT_APP_BACKEND_URL: http://127.0.0.1:8000
         run: yarn build
 
+  scanner-regressions:
+    name: Local scanner precision tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pytest
+        run: python -m pip install pytest
+      - name: Run fixture precision and secret-cache regression tests
+        env:
+          PYTHONPATH: engine
+        run: python -m pytest -q engine/tests/test_secret_fixture_precision.py engine/tests/test_v2_secret_cache.py
+
   backend-smoke:
     name: Python bridge smoke checks (${{ matrix.os }})
     strategy:

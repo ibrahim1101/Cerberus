@@ -18,3 +18,22 @@ def test_synthetic_password_outside_test_still_detected():
 def test_high_confidence_token_in_test_still_detected():
     findings = scan_text('token: "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"', "src/lib/auth.test.ts")
     assert any(f["rule"] == "GitHub token" for f in findings)
+
+
+def test_verified_locat_synthetic_passwords_are_exempt_only_in_tests():
+    for password in ("oldpass8", "incorrect", "Velvet Orchard Moonlight"):
+        for extension in (".test.ts", ".spec.ts", ".test.js"):
+            line = f'password: "{password}"'
+            assert scan_text(line, "src/auth" + extension) == []
+            assert len(scan_text(line, "src/auth.ts")) == 1
+
+
+def test_unknown_credentials_and_nonpassword_fields_are_not_exempt():
+    assert len(scan_text('password: "unknown-credential"', "src/auth.test.ts")) == 1
+    assert len(scan_text('token: "Velvet Orchard Moonlight"', "src/auth.test.ts")) == 1
+
+
+def test_high_confidence_token_on_synthetic_password_line_is_detected():
+    line = 'password: "oldpass8"; token: "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"'
+    findings = scan_text(line, "src/auth.test.ts")
+    assert any(item["rule"] == "GitHub token" for item in findings)

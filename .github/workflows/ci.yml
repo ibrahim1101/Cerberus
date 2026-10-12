@@ -1,4 +1,4 @@
-name: PipelineGuard UI CI
+name: CERBERUS UI CI
 
 on:
   push:

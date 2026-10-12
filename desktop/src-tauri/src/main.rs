@@ -290,6 +290,13 @@ fn main() {
         .invoke_handler(tauri::generate_handler![bridge_request, take_dropped_paths, confirm_desktop_close])
         .on_window_event(|window, event| {
             use tauri::Manager;
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let gate = window.state::<CloseGate>();
+                if !gate.0.load(Ordering::SeqCst) {
+                    api.prevent_close();
+                    let _ = window.eval("window.dispatchEvent(new Event(\"cerberus-close-requested\"))");
+                }
+            }
             if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
                 let state = window.state::<DroppedPaths>();
                 if let Ok(mut pending) = state.0.lock() {

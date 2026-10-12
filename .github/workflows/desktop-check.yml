@@ -2,7 +2,7 @@ name: Desktop shell validation
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/cerberus-ai-webhook-integrations]
     paths:
       - 'desktop/**'
       - 'frontend/**'
@@ -10,7 +10,7 @@ on:
       - 'engine/**'
       - '.github/workflows/desktop-check.yml'
   pull_request:
-    branches: [main]
+    branches: [main, feat/cerberus-ai-webhook-integrations]
     paths:
       - 'desktop/**'
       - 'frontend/**'

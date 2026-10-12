@@ -69,3 +69,7 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - Do not extrapolate these confirmations to unreported export formats, Windows uninstall, bridge authentication, false-positive resolution or SmartScreen behavior.
 - Green packaged-sidecar run `38237311580` (application commit `091a0f8`) produced installer-preview and checksum artifacts; **their matching contents have not yet been independently checked**.
 - Documentation-only commits after the application commit require release SHA selection and final acceptance before publishing.
+
+### Physical Windows uninstall confirmation
+- User reports CERBERUS uninstall succeeded on earlier installed Windows builds. Mark the uninstall behavior as user-verified for those builds; exact final release installer upgrade/uninstall remains a distinct acceptance check.
+- Linux/macOS preview work is isolated on `feat/cerberus-linux-macos-preview` and must not be advertised as supported in the Windows beta until CI and platform tests pass.

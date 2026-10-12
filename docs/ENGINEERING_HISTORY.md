@@ -591,3 +591,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Commit `2538bfd` adds a SHA-256 checksum generation step after successful silent installer/uninstaller smoke testing and uploads `SHA256SUMS.txt` as a separate 7-day artifact. Hash corresponds to `Cerberus-Setup-0.1.0.exe` from the same workflow.
 - Commit `7516f2d` adds same-run checksum verification to beta release gate.
 - Pending: verify fresh CI, match checksum to exact distributed installer, and complete physical Windows/Locat acceptance. No release published. Separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Bundled engine CI parity retry
+- Verified CI `38175627016` and Windows sidecar/NSIS workflow `38175627004` passed on `32f5db6` before the change.
+- Commit `957ff48` updates `.github/workflows/ci.yml` backend smoke on Ubuntu and Windows to test the repository's own `engine/` tree instead of a checkout of the separate PipelineGuard development branch. Adjusts backend paths for root checkout and preserves bridge security and offline integration checks.
+- Commit `47d6e3a` strengthens beta release checklist to require green CI using the bundled engine.
+- Fresh CI after this change is required; physical Windows acceptance and Locat rescan remain pending. No release published; separate PipelineGuard repository untouched.

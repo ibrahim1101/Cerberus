@@ -621,3 +621,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `a4179ee` safely translates non-JSON HTTP responses into status-only JSON details without leaking local paths or tracebacks.
 - `8f1cce1` makes `/api/fs/list` tolerate Windows directory-entry metadata failures and disconnected drive checks.
 - `bb9a856` updates release gate. Fresh CI and physical Windows retest required. No release published and separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Folder picker integration regression
+- On `0d345b1e`, UI CI `38224251158` passed while Windows sidecar workflow `38224251169` was still running at inspection.
+- `9529848` adds authenticated `/api/fs/list` integration checks with a nested directory and JSON config file, plus unauthenticated 401 rejection, to the existing offline scan and report integration suite. This runs on Ubuntu and Windows using the bundled engine.
+- `cc69f3b` adds this requirement to the beta release checklist.
+- User's physical `Invalid bridge response` screenshot remains a release blocker pending new installed-build retest. No release published; separate PipelineGuard repository untouched.

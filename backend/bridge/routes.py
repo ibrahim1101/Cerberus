@@ -186,6 +186,14 @@ def start_scan(body: ScanRequest):
         _bad(str(exc), 409)
 
 
+@router.post("/scan/cancel")
+def cancel_scan():
+    try:
+        return manager.cancel()
+    except RuntimeError as exc:
+        _bad(str(exc), 409)
+
+
 @router.get("/scan/state")
 def scan_state():
     return manager.snapshot()

@@ -27,11 +27,16 @@ EVENT_STAGE = {
 }
 
 
+class ScanCancelled(Exception):
+    """Cooperative scan cancellation requested by the user."""
+
+
 class ScanManager:
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._state: dict = {"status": "idle"}
         self._started = 0.0
+        self._cancel = threading.Event()
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -46,6 +51,7 @@ class ScanManager:
         with self._lock:
             if self._state.get("status") == "running":
                 raise RuntimeError("A scan is already running")
+            self._cancel.clear()
             effective = online and selected.online_intelligence
             stages = [{"key": k, "label": label, "state": "pending"} for k, label in STAGES
                       if k != "discovery" or selected.incremental]
@@ -66,6 +72,18 @@ class ScanManager:
         threading.Thread(target=self._run, args=(state,), daemon=True, name="pipelineguard-scan").start()
         return state
 
+    def cancel(self) -> dict:
+        with self._lock:
+            if self._state.get("status") != "running":
+                raise RuntimeError("No active scan to cancel")
+            self._cancel.set()
+            self._state["cancel_requested"] = True
+            return dict(self._state)
+
+    def _check_cancel(self) -> None:
+        if self._cancel.is_set():
+            raise ScanCancelled("Scan cancelled by user")
+
     def _advance(self, key: str, fraction: float = 0.0) -> None:
         stages = self._state["stages"]
         keys = [s["key"] for s in stages]
@@ -80,6 +98,7 @@ class ScanManager:
         self._state["progress"] = max(self._state["progress"], round((pos + fraction) / len(stages) * 100, 1))
 
     def _on_progress(self, event) -> None:
+        self._check_cancel()
         with self._lock:
             key = EVENT_STAGE.get(event.stage)
             if key is None:
@@ -96,6 +115,7 @@ class ScanManager:
             self._advance(key, fraction)
 
     def _on_finding(self, finding: dict) -> None:
+        self._check_cancel()
         if finding.get("severity") != "INFO":
             with self._lock:
                 self._state["findings_detected"] += 1
@@ -106,11 +126,24 @@ class ScanManager:
             report = run_scan(Path(state["project"]), Path(state["config"]) if state["config"] else None,
                               state["online_requested"], profile=state["profile"], progress=self._on_progress,
                               timings=timings, on_finding=self._on_finding)
+        except ScanCancelled:
+            with self._lock:
+                self._state.update(status="cancelled", current_stage="Cancelled",
+                                   elapsed_ms=(perf_counter() - self._started) * 1000)
+            storage.record_activity("scan-cancelled", "Scan cancelled by user", project=state["project"])
+            return
         except Exception as exc:  # engine errors are surfaced, never hidden
             with self._lock:
                 self._state.update(status="failed", error=clean(exc, 300) or exc.__class__.__name__,
                                    elapsed_ms=(perf_counter() - self._started) * 1000)
             storage.record_activity("scan-failed", "Scan failed", project=state["project"])
+            return
+        # A request arriving after the final engine callback must not publish a cancelled scan.
+        if self._cancel.is_set():
+            with self._lock:
+                self._state.update(status="cancelled", current_stage="Cancelled",
+                                   elapsed_ms=(perf_counter() - self._started) * 1000)
+            storage.record_activity("scan-cancelled", "Scan cancelled by user", project=state["project"])
             return
         with self._lock:
             cache = report.get("secret_cache") or {}

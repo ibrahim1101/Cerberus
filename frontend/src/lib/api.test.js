@@ -26,6 +26,13 @@ describe("desktop native IPC bridge", () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
+  test("surfaces only allowlisted native bridge errors", async () => {
+    window.__TAURI__ = { core: { invoke: jest.fn().mockRejectedValue("Invalid desktop bridge request") } };
+    await expect(api.fsList("C:\\\\Users")).rejects.toMatchObject({ status: 0, message: "Cerberus desktop bridge: Invalid desktop bridge request" });
+    window.__TAURI__.core.invoke.mockRejectedValue(new Error("private filesystem path: C:\\\\Users"));
+    await expect(api.fsList()).rejects.toThrow("Cerberus desktop bridge is unavailable");
+  });
+
   test("preserves native HTTP error detail", async () => {
     window.__TAURI__ = { core: { invoke: jest.fn().mockResolvedValue({ status: 401, body: { detail: "Unauthorized" } }) } };
     await expect(api.status()).rejects.toMatchObject({ status: 401, message: "Unauthorized" });

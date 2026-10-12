@@ -9,6 +9,8 @@ const PROVIDERS = [
   { id: "smtp", title: "SMTP / Email", category: "Notifications", description: "Email reports and scan alerts." },
   { id: "discord", title: "Discord", category: "Notifications", description: "Channel alerts through Discord webhooks." },
   { id: "slack", title: "Slack", category: "Notifications", description: "Workspace alert delivery." },
+  { id: "teams", title: "Microsoft Teams", category: "Notifications", description: "Teams workflow notifications." },
+  { id: "n8n", title: "n8n / Automation", category: "Notifications", description: "Trigger self-hosted automation workflows." },
 ];
 import { useEffect, useState } from "react";
 import { Panel } from "@/components/common/Panel";

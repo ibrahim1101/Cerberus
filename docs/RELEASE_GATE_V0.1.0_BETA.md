@@ -14,6 +14,8 @@ Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/pip
 
 ## Release blockers — must be green before publishing
 
+**Physical Windows blocker observed October 12:** the project-folder picker displayed `Cerberus desktop bridge is unavailable` while the footer showed `Engine bridge: connected`. Launch and UI rendering were confirmed, but directory browsing is not accepted. The native IPC adapter now distinguishes allowlisted native error reasons from generic failures (`cbda802`); reproduce on a new build and capture the precise message before declaring the issue fixed.
+
 CI backend smoke now uses the repository's bundled engine (commit `957ff48`), rather than checking out the separate PipelineGuard development branch. This change requires a fresh green workflow run before the release gate can be checked.
 
 - [ ] Latest React tests, Python bridge smoke **against the bundled `engine/` tree**, local scanner regressions, and packaged Windows sidecar workflow all green on the *same* release commit.

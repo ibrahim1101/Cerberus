@@ -1,4 +1,4 @@
-name: Linux and macOS portable preview
+name: CERBERUS Linux and macOS builds
 
 on:
   workflow_dispatch:
@@ -73,9 +73,19 @@ jobs:
           test -d dist/cerberus-portable/cerberus-runtime/engine/pipelineguard
           file dist/cerberus-portable/Cerberus
           shasum -a 256 dist/cerberus-portable/Cerberus > dist/cerberus-portable/Cerberus.sha256
+      - name: Package downloadable platform archive and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/release
+          archive="Cerberus-0.1.0-beta.1-${{ matrix.platform }}-portable.tar.gz"
+          tar -czf "dist/release/$archive" -C dist cerberus-portable
+          (cd dist/release && shasum -a 256 "$archive" > "$archive.sha256")
+          test -s "dist/release/$archive"
+          test -s "dist/release/$archive.sha256"
       - uses: actions/upload-artifact@v4
         with:
           name: cerberus-${{ matrix.platform }}-portable-preview
-          path: dist/cerberus-portable/
+          path: dist/release/
           retention-days: 7
           if-no-files-found: error

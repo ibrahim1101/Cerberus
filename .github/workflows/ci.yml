@@ -2,7 +2,7 @@ name: PipelineGuard UI CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/cerberus-ai-webhook-integrations]
   pull_request:
     branches: [main]
   workflow_dispatch:

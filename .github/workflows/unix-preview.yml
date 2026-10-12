@@ -1,0 +1,81 @@
+name: Linux and macOS portable preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/cerberus-ai-webhook-integrations]
+    paths:
+      - 'backend/**'
+      - 'engine/**'
+      - 'desktop/**'
+      - 'frontend/**'
+      - '.github/workflows/unix-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux-x64
+          - os: macos-14
+            platform: macos-arm64
+          - os: macos-15-intel
+            platform: macos-x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+      - name: Install Linux Tauri dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev patchelf
+      - name: Package Python sidecar
+        run: |
+          python -m pip install -r backend/requirements-desktop.txt 'pyinstaller>=6.0,<7'
+          python -m PyInstaller --noconfirm --clean --onedir --name cerberus-bridge --paths backend --paths engine --collect-submodules bridge --collect-submodules pipelineguard --collect-submodules scanners --hidden-import server backend/desktop_sidecar.py
+      - name: Build native desktop frontend
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps --no-audit --no-fund
+          CI=false npm run build
+      - name: Generate required Tauri icon
+        run: |
+          python -c "import struct,zlib,pathlib; p=pathlib.Path('desktop/src-tauri/icons/icon.png'); p.parent.mkdir(parents=True,exist_ok=True); chunk=lambda t,d:struct.pack('!I',len(d))+t+d+struct.pack('!I',zlib.crc32(t+d)&0xffffffff); raw=b''.join(b'\\x00'+bytes((28,32,38,255))*32 for _ in range(32)); p.write_bytes(b'\\x89PNG\\r\\n\\x1a\\n'+chunk(b'IHDR',struct.pack('!2I5B',32,32,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(raw))+chunk(b'IEND',b''))"
+      - name: Build native desktop executable
+        run: |
+          cd desktop/src-tauri
+          cargo install tauri-cli --version '^2' --locked
+          cargo tauri build --no-bundle
+      - name: Assemble portable preview
+        shell: bash
+        run: |
+          mkdir -p dist/cerberus-portable/cerberus-runtime
+          cp desktop/src-tauri/target/release/pipelineguard-desktop dist/cerberus-portable/Cerberus
+          cp -R dist/cerberus-bridge/. dist/cerberus-portable/cerberus-runtime/
+          cp -R engine dist/cerberus-portable/cerberus-runtime/engine
+          chmod +x dist/cerberus-portable/Cerberus dist/cerberus-portable/cerberus-runtime/cerberus-bridge
+          test -d dist/cerberus-portable/cerberus-runtime/engine/pipelineguard
+          file dist/cerberus-portable/Cerberus
+          shasum -a 256 dist/cerberus-portable/Cerberus > dist/cerberus-portable/Cerberus.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-${{ matrix.platform }}-portable-preview
+          path: dist/cerberus-portable/
+          retention-days: 7
+          if-no-files-found: error

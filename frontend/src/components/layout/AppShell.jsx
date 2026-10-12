@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import StatusBar from "@/components/layout/StatusBar";
 import BackendOffline from "@/components/layout/BackendOffline";
+import AssistantLauncher from "@/components/integrations/AssistantLauncher";
 
 export default function AppShell() {
   const { settings, backend } = useApp();
@@ -34,6 +35,7 @@ export default function AppShell() {
               )}
             </main>
           </div>
+          <AssistantLauncher />
           <StatusBar />
         </div>
       </TooltipProvider>

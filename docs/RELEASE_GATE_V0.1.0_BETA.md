@@ -14,7 +14,7 @@ Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/pip
 
 ## Release blockers — must be green before publishing
 
-**Physical Windows blocker observed October 12:** the project-folder picker displayed `Cerberus desktop bridge is unavailable` while the footer showed `Engine bridge: connected`. Launch and UI rendering were confirmed, but directory browsing is not accepted. The native IPC adapter now distinguishes allowlisted native error reasons from generic failures (`cbda802`); reproduce on a new build and capture the precise message before declaring the issue fixed.
+**Physical Windows retest October 12:** folder picker now shows `Cerberus desktop bridge: Invalid bridge response`. Native Rust JSON parsing previously hid non-JSON HTTP errors; commit `a4179ee` preserves status with a safe error detail, and `8f1cce1` guards Windows directory metadata. Retest updated installer; do not mark fixed until verified.\n\n**Physical Windows blocker observed October 12:** the project-folder picker displayed `Cerberus desktop bridge is unavailable` while the footer showed `Engine bridge: connected`. Launch and UI rendering were confirmed, but directory browsing is not accepted. The native IPC adapter now distinguishes allowlisted native error reasons from generic failures (`cbda802`); reproduce on a new build and capture the precise message before declaring the issue fixed.
 
 CI backend smoke now uses the repository's bundled engine (commit `957ff48`), rather than checking out the separate PipelineGuard development branch. This change requires a fresh green workflow run before the release gate can be checked.
 

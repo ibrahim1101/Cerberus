@@ -69,3 +69,34 @@ Downloaded `cerberus-windows-license-inventory` artifact **11765880854** and rea
 - Windows standalone artifact contains five staged third-party license files: Esprima BSD, exit MIT, and the three fontsource package LICENSE files. All five package folders and original installed license files also confirmed in the Windows license inventory.
 - **Residual redistribution obligations NOT fully resolved:** exhaustive license and attribution text for all distributed Rust/Python/JS dependencies, provenance and license of imported engine/templates, whether Unix packages carry the required notices, and platform-specific distribution obligations. Integrity and CI validation do not establish full legal compliance.
 - **Decision:** Technical artifact-integrity gate passed; legal/compliance gate remains **OPEN**. Do not represent the release as fully license-cleared. Physical runtime testing explicitly deferred by maintainer; Unix packages experimental.
+
+
+## Consolidated release licensing decision — 2026-10-13
+
+**Decision: NOT CLEARED for an unqualified claim of compliant public binary redistribution.** This is a single consolidated audit decision, not a request for incremental CI tasks. The maintainer may choose whether to defer release or seek a qualified rights review, but an automated review cannot grant rights to code of unverified origin.
+
+### Verified evidence
+
+- CERBERUS repository root contains the GPL version 3 license text; desktop Rust package declares `GPL-3.0-only`. Neither fact proves that all incorporated code is owned by the maintainer or licensed compatibly.
+- The exact Windows installer from [run 38298142839](https://github.com/ibrahim1101/Cerberus/actions/runs/38298142839) matched its same-run SHA-256 checksum: `158c8564bb06122fdad6ac814d82b7ee4d945e1020fee381469db4db35f2a080`.
+- The Linux x64, macOS x64 and macOS arm64 portable archives from [run 38298814425](https://github.com/ibrahim1101/Cerberus/actions/runs/38298814425) each matched the accompanying archive checksum. This establishes artifact integrity, **not** runtime functionality or licensing.
+- Windows standalone payload contains the collected license texts for Esprima, exit, Chakra Petch, IBM Plex Sans and JetBrains Mono. The five source package license files were observed in the CI license inventory. This is not an exhaustive notice set.
+- Python build-environment, Cargo and npm dependency metadata were inventoried previously, but are not a verified bill of materials of each distributed executable, bundled web asset or platform archive.
+
+### Remaining redistribution blockers, consolidated
+
+1. **Imported source provenance and permission:** Establish authorship/rights or valid incoming licenses for the engine, frontend templates and any Emergent-origin source, including any third-party copied code. Repository GPL text does not itself establish permission.
+2. **Complete shipped-component notice coverage:** Generate an exact payload-level dependency/asset inventory, review all applicable license terms (including Python bootloader, Rust crates, JS bundle, fonts and platform-specific dependencies), and include any mandatory license texts, copyright notices, attributions and source notices in **each** distributed platform package. Five notices in the Windows package are not enough to demonstrate completion.
+3. **GPLv3 redistribution obligations:** Provide complete corresponding source for the distributed version, applicable build/install scripts, GPL license and warranty disclaimers, and any notices required by third-party licenses. Confirm the release's source reference corresponds to the exact binaries; do not present mixed-build commits as a single reproducible candidate.
+4. **Unresolved license compatibility:** Review packages with multiple, missing or ambiguous license expressions and any proprietary source/assets before concluding GPL-3.0-only compatibility. A successful build or package-manager metadata field is not legal clearance.
+
+### Practical outcome
+
+- **Technical artifact integrity:** PASS for the inspected four artifacts.
+- **Five specifically collected Windows license texts:** PRESENT.
+- **Full third-party notice completeness:** NOT VERIFIED.
+- **Imported-code redistribution rights:** NOT VERIFIED.
+- **Overall legal redistribution clearance:** **BLOCKED / NOT ESTABLISHED**.
+- **Physical device testing:** DEFERRED by maintainer; it is not a licensing prerequisite and is not represented as complete.
+
+No automated scan or assistant statement can convert unknown rights into permission. Obtain original source license/provenance evidence and confirm notice/source obligations before publicly distributing binaries as license-cleared. This document is a technical compliance review, not a legal opinion.

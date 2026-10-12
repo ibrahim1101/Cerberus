@@ -222,8 +222,12 @@ async fn bridge_request(
     }
     let response = request.send().await.map_err(|_| "Local bridge unavailable")?;
     let status = response.status();
-    let payload = response.json::<Value>().await
-        .map_err(|_| "Invalid bridge response")?;
+    // FastAPI can return plain-text 500 errors for unexpected exceptions.
+    // Preserve HTTP status while avoiding exposing traceback, paths or HTML to the UI.
+    let payload = match response.json::<Value>().await {
+        Ok(json) => json,
+        Err(_) => serde_json::json!({ "detail": format!("Local bridge returned HTTP {}", status.as_u16()) }),
+    };
     Ok(BridgeResponse {
         status: status.as_u16(),
         status_text: status.canonical_reason().unwrap_or("").into(),

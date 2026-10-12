@@ -111,4 +111,7 @@ export const api = {
   settings: () => request("GET", "/settings"),
   saveSettings: (body) => request("PUT", "/settings", body),
   diagnostics: () => request("GET", "/diagnostics"),
+  credentialStatus: (provider) => request("GET", `/integrations/credentials/${provider}`),
+  saveCredential: (provider, credential) => request("PUT", `/integrations/credentials/${provider}`, { credential }),
+  deleteCredential: (provider) => request("DELETE", `/integrations/credentials/${provider}`),
 };

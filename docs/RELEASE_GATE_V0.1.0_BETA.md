@@ -19,6 +19,7 @@ Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/pip
 CI backend smoke now uses the repository's bundled engine (commit `957ff48`), rather than checking out the separate PipelineGuard development branch. This change requires a fresh green workflow run before the release gate can be checked.
 
 - [ ] Latest React tests, Python bridge smoke **against the bundled `engine/` tree**, local scanner regressions, and packaged Windows sidecar workflow all green on the *same* release commit.
+- [ ] Verify packaged Windows `/api/fs/list` fixture smoke (including URL-encoded drive paths and directories with spaces) and native Rust IPC request-path regression tests; neither alone proves GUI picker functionality.
 - [ ] Download and install the generated `Cerberus-Setup-0.1.0.exe` on a real Windows machine; confirm Start menu shortcut, launch, bridge health, restart, clean close and uninstall.
 - [ ] Run a sample-project scan, inspect findings and dependencies, test OSV offline/online states, and export/open HTML, JSON and SARIF reports.
 - [ ] Rescan Locat; record exact fixture findings and final discovered/scanned/reused/skipped counts. Investigate any true-positive loss or unexplained discrepancy.

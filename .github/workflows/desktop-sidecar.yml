@@ -157,6 +157,17 @@ jobs:
               Start-Sleep -Milliseconds 200
             }
             if (-not $ready) { throw 'Staged preview bridge did not become authenticated-ready' }
+            # Exercise the folder browser endpoint against the exact staged Windows runtime.
+            $folder = Join-Path $env:RUNNER_TEMP 'Cerberus Folder Picker Fixture'
+            New-Item -ItemType Directory -Force -Path $folder | Out-Null
+            New-Item -ItemType Directory -Force -Path (Join-Path $folder 'Nested Project') | Out-Null
+            $encoded = [System.Uri]::EscapeDataString($folder)
+            $listing = Invoke-RestMethod -Uri "http://127.0.0.1:18766/api/fs/list?path=$encoded" -Headers @{'X-PipelineGuard-Token'='ci-staged-preview-token'} -TimeoutSec 5
+            if ($listing.path -ne $folder -or 'Nested Project' -notin $listing.directories) {
+              throw 'Packaged Windows folder browser failed to list nested project'
+            }
+            Write-Host 'Packaged Windows folder browser endpoint passed'
+
           } finally {
             if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
           }

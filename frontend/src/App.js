@@ -1,6 +1,13 @@
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import { AppProvider } from "@/context/AppContext";
+import { AppProvider, useApp } from "@/context/AppContext";
+import { useDesktopCloseConfirmation } from "@/lib/useDesktopCloseConfirmation";
+
+function DesktopExitGuard() {
+  const { scanState, reportsLoading } = useApp();
+  useDesktopCloseConfirmation(scanState, reportsLoading);
+  return null;
+}
 import AppShell from "@/components/layout/AppShell";
 import Dashboard from "@/pages/Dashboard";
 import ScanProject from "@/pages/ScanProject";
@@ -14,6 +21,7 @@ import Settings from "@/pages/Settings";
 export default function App() {
   return (
     <AppProvider>
+      <DesktopExitGuard />
       <HashRouter>
         <Routes>
           <Route element={<AppShell />}>

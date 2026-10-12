@@ -1,61 +1,80 @@
-# PipelineGuard UI
+# CERBERUS
 
-A React-based frontend and Python FastAPI integration bridge for [PipelineGuard](https://github.com/ibrahim1101/PipelineGuard), a local-first DevSecOps scanner.
+**Local-first desktop DevSecOps security scanner · React + FastAPI + Python scanner + Tauri**
 
-> **Development status (October 2026):** CERBERUS is a Windows beta candidate, not a verified production release. GitHub-hosted frontend, desktop and packaged-sidecar validation passed for application commit `091a0f8`. A user physically verified scanning cancellation, active-scan close confirmation, the expanded How to Use guide and fullscreen scrolling. Remaining release checks include exact-installer security, exports, uninstall and checksum verification; no public beta release has been published.
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![CI](https://github.com/ibrahim1101/Cerberus/actions/workflows/ci.yml/badge.svg)](https://github.com/ibrahim1101/Cerberus/actions/workflows/ci.yml)
+[![Windows desktop](https://github.com/ibrahim1101/Cerberus/actions/workflows/desktop-check.yml/badge.svg)](https://github.com/ibrahim1101/Cerberus/actions/workflows/desktop-check.yml)
+[![Windows package](https://github.com/ibrahim1101/Cerberus/actions/workflows/desktop-sidecar.yml/badge.svg)](https://github.com/ibrahim1101/Cerberus/actions/workflows/desktop-sidecar.yml)
 
-## Development documentation
+> **Status · October 12, 2026:** Active development / pre-release Windows beta candidate. Automated checks passed on the consolidated `main` merge `a5a7e2d`; this is **not** a production security certification or evidence of completed physical installer acceptance. No public stable release is claimed.
 
-- [Engineering history and CI troubleshooting](docs/ENGINEERING_HISTORY.md) — living record of UI development, failed attempts, fixes, verified commits, and remaining work.
-- [CERBERUS v0.1.0 beta release gate](docs/RELEASE_GATE_V0.1.0_BETA.md) — mandatory CI, Windows acceptance, security, documentation and portfolio checks.
-- [Draft Windows beta release notes](docs/RELEASE_NOTES_V0.1.0_BETA1_DRAFT.md) — installation, unsigned installer notice, limitations and publication checklist.
-- [Future AI and webhook integrations](docs/INTEGRATIONS_AI_WEBHOOKS_ROADMAP.md) — planned for after beta; not currently implemented.
-- Update this document after meaningful development batches, including both successful and unsuccessful validation results.
+CERBERUS brings code and dependency security findings, local scan history, report exports and workflow-focused investigation tools into a desktop application. The project evolved from the PipelineGuard UI into a separately branded application. **The standalone [PipelineGuard](https://github.com/ibrahim1101/PipelineGuard) repository is a different project and is not modified by CERBERUS documentation or releases.**
 
-## Repositories
+## What exists today
 
-- **Security engine:** [PipelineGuard](https://github.com/ibrahim1101/PipelineGuard), development branch `feat/v2-engine-integration`.
-- **Frontend and bridge:** this repository. Keep engine and UI changes separate until integration tests pass.
+| Area | Current implementation / limitation |
+| --- | --- |
+| Desktop interface | React workspaces for Dashboard, Scan Project, Findings, Dependencies, OSV Intelligence, Reports, History, Settings and AI & Integrations; in-app How to Use and contextual help |
+| Local scanner | Bundled `engine/` used by bridge/CI; progress, masked secret evidence, local findings and scan accounting (scanned/reused/skipped/discovered) |
+| Scan controls | Cooperative cancellation and active-scan close confirmation; cancellation is not guaranteed instantaneous during blocking operations |
+| Reports | Local scan history and JSON/HTML/SARIF-related report paths; automated HTML/JSON integration coverage exists, but physical export acceptance remains part of the release gate |
+| Dependency intelligence | Optional OSV lookup; network-dependent and user permission/consent considerations apply |
+| Desktop runtime | Tauri 2 native shell, Python FastAPI bridge, Windows packaged Python sidecar and unsigned NSIS installer build; Linux/macOS portable preview CI is experimental |
+| Security | Loopback-focused bridge, desktop launch token, authenticated routes in desktop mode, path/preview checks, masked evidence, OS-backed integration key storage where available |
+| AI & Integrations | Provider catalog, floating assistant launcher, credential save/status/delete controls. **Actual AI chat, provider connectivity, threat-intel adapters and outbound webhook delivery are not yet implemented.** |
 
-## Structure
+## Repository layout
 
-- `frontend/`: React application, eight routed workspaces (Dashboard, Scan Project, Findings, Dependencies, OSV Intelligence, Reports, History, Settings).
-- `backend/server.py`: FastAPI application, CORS configuration, optional request-token middleware.
-- `backend/bridge/`: scan management, reporting, OSV, settings, and local history integration.
-
-## Development prerequisites
-
-Python 3.11+, Node.js, Yarn, and a local checkout of the PipelineGuard Python engine. The bridge imports the engine from the path supplied in `PIPELINEGUARD_ENGINE_PATH`.
-
-The frontend expects `REACT_APP_BACKEND_URL` to point to the local bridge. Review `frontend/package.json` for build commands.
-
-The default allowed frontend origins are `http://localhost:3000` and `http://127.0.0.1:3000`. Set `CORS_ORIGINS` to an explicit comma-separated list if necessary; wildcard `*` is rejected.
-
-## Security boundaries
-
-- For desktop mode, set `PIPELINEGUARD_DESKTOP_MODE=1` and supply a fresh unpredictable `PIPELINEGUARD_TOKEN` at launch. Desktop mode refuses to initialize without the token.
-- The frontend sends the token in `X-PipelineGuard-Token` when provided by the desktop shell.
-- **Important:** Without desktop mode and without a token, the current bridge still accepts unauthenticated API calls. Do not expose it to a network or run it as a public web service.
-- Run the bridge on `127.0.0.1` only; CORS is not an authentication or network isolation mechanism.
-- OSV lookups require network access. Never send source files or detected secrets to external services.
-
-## Loopback-only bridge launcher (security groundwork)
-
-`backend/launch_local.py` binds Uvicorn to `127.0.0.1` only and generates a fresh token on each start. Example from the repository root, after installing Python dependencies and setting `PIPELINEGUARD_ENGINE_PATH`:
-
-```sh
-python backend/launch_local.py --port 8000
+```text
+frontend/                 React UI and component tests
+backend/                  FastAPI bridge, integration registry and tests
+engine/                   Bundled scanner implementation used by this app
+desktop/src-tauri/        Tauri 2 native desktop shell
+.github/workflows/        Frontend/backend, bridge, Windows and Unix preview CI
+docs/                     Engineering history, development journey, release gates
 ```
 
-**Important:** This launcher intentionally does **not** print the secret token. It is groundwork for a future trusted desktop shell that must securely deliver the per-launch token to the frontend. Running this launcher alone does not establish an authenticated frontend session; do not treat it as a complete desktop integration. The existing manually configured bridge remains available for development. Never bind an unauthenticated bridge to `0.0.0.0` or a public interface.
+## Development and local execution
 
-## Remaining integration work
+Requirements vary by workflow: Node.js with Yarn 1.x, Python 3.11+, and Rust/Tauri desktop prerequisites for native builds. Read the workflow files for the tested build matrix and exact setup steps.
 
-1. Verify a desktop shell exists and starts/stops the Python bridge with a per-launch token.
-2. Add automated tests for authentication, origin handling, filesystem operations, and scan lifecycle.
-3. Audit all filesystem and report endpoints for local path handling and sensitive-data disclosure.
-4. Remove unused development dependencies only after import checks.
-5. Validate frontend production builds, Python tests, and Windows packaging.
-6. Integrate the UI with the engine in an isolated branch, preserving the original CLI and stable release.
+```sh
+cd frontend
+yarn install --frozen-lockfile
+yarn test --watchAll=false
+yarn build
+```
 
-Do not fabricate scan results or mark unverified backend functionality as complete.
+Python bridge tests and packaged-desktop validation are executed by GitHub Actions; see [CI](.github/workflows/ci.yml), [managed bridge](.github/workflows/managed-bridge-smoke.yml), [desktop validation](.github/workflows/desktop-check.yml), [Windows packaging](.github/workflows/desktop-sidecar.yml) and [Unix preview](.github/workflows/unix-preview.yml). Do not assume a development browser session is equivalent to the native desktop security model.
+
+**Bridge security:** desktop mode requires a per-launch unpredictable token; the native shell forwards authenticated requests to the local bridge. Browser development without a token can expose unauthenticated API routes: keep the bridge bound to `127.0.0.1` and **never expose it to LAN/public networks**. CORS is not authentication. Do not submit secret evidence or source files to external providers. OSV requests are optional and network-dependent.
+
+## Development journey and verification
+
+- [**Development Journey**](docs/DEVELOPMENT_JOURNEY.md) — milestones, architecture, known bugs, failed approaches, fixes, tests, CI outcomes and remaining work.
+- [**Detailed Engineering History**](docs/ENGINEERING_HISTORY.md) — extensive commit/run-level engineering notes and troubleshooting.
+- [**v0.1.0 beta release gate**](docs/RELEASE_GATE_V0.1.0_BETA.md) — mandatory physical Windows, security, packaging and documentation acceptance.
+- [**Draft beta release notes**](docs/RELEASE_NOTES_V0.1.0_BETA1_DRAFT.md) — unsigned installer and distribution caveats.
+- [**AI/webhook roadmap**](docs/INTEGRATIONS_AI_WEBHOOKS_ROADMAP.md) — planned provider integrations, consent and SSRF requirements.
+
+### Consolidation checkpoint
+
+On October 12, 2026, [PR #1](https://github.com/ibrahim1101/Cerberus/pull/1) merged 36 feature-branch commits into `main` at `a5a7e2d`. The exact merged commit passed [frontend/backend CI](https://github.com/ibrahim1101/Cerberus/actions/runs/38270711792), [managed bridge smoke](https://github.com/ibrahim1101/Cerberus/actions/runs/38270711875), [desktop shell](https://github.com/ibrahim1101/Cerberus/actions/runs/38270711902) and [Windows packaged-sidecar validation](https://github.com/ibrahim1101/Cerberus/actions/runs/38270711873). The repository was subsequently renamed to **Cerberus**, with `main` as the only branch.
+
+### Known release blockers and limitations
+
+- Re-test the latest packaged installer on a physical Windows PC: folder-picker IPC previously returned an invalid bridge response; backend path tests alone do not prove the GUI bug is resolved.
+- Complete real-world scan/export, checksum, installation/uninstallation, cancellation and close-confirmation acceptance against the **same installer**.
+- Verify exact packaged OS-keychain behavior; missing OS keyring must fail closed.
+- Linux/macOS previews are not validated native installers; real-device acceptance is pending.
+- Provider catalog and assistant launcher are not proof of functioning AI or webhook integrations.
+- Security scanners can report false positives or miss vulnerabilities; investigate findings and do not treat any scan as a guarantee of safety.
+
+## License
+
+Copyright © 2026 CERBERUS contributors. CERBERUS original project code is offered under **[GNU General Public License version 3 only](LICENSE)** (`GPL-3.0-only`), subject to ownership and any third-party license obligations. Third-party dependencies and any independently licensed or imported components retain their respective licenses; review them before redistribution. The software comes **without warranty**.
+
+## Contributing
+
+Please include reproducible steps, affected platform/build, redacted logs, expected/actual behavior and test coverage when reporting issues. **Never post API keys, unmasked scanner evidence or private source files in public issues.** Development history should document failed approaches and verified outcomes, not only successful changes.

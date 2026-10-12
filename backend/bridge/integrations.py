@@ -3,7 +3,9 @@
 Never report a provider as connected until a verified adapter test succeeds.
 No API keys or secret material are accepted by this module.
 """
-from fastapi import APIRouter, HTTPException\nfrom pydantic import BaseModel, Field\nfrom bridge import credential_vault
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+from bridge import credential_vault
 
 router = APIRouter(prefix="/api/integrations", tags=["integrations"])
 

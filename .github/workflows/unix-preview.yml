@@ -3,7 +3,7 @@ name: Linux and macOS portable preview
 on:
   workflow_dispatch:
   push:
-    branches: [feat/cerberus-ai-webhook-integrations]
+    branches: [main]
     paths:
       - 'backend/**'
       - 'engine/**'

@@ -40,3 +40,10 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 ## Release decision
 
 **NOT RELEASE-READY YET** until current frontend CI is green and the physical Windows acceptance checks pass. A time deadline must not override a failing test or unresolved security concern.
+
+### Cooperative scan cancellation (October 12 candidate)
+- [ ] Verify new `POST /api/scan/cancel` requires authentication and rejects idle scans.
+- [ ] Verify the UI cancel button appears only during running scans, requests cancellation once, and shows `cancelled` after a scanner callback checkpoint.
+- [ ] Verify cancellation does not create completed scan history or partial reports, and a new scan can start after cancellation.
+- [ ] Test large-file and online OSV cancellation latency on physical Windows. **Cancellation is cooperative and may not interrupt a blocking operation immediately.**
+- [ ] Verify fresh frontend/backend and Windows installer workflows before distributing cancellation build.

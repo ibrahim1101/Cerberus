@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Panel } from "@/components/common/Panel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import CredentialConfiguration from "@/components/integrations/CredentialConfiguration";
 
 export default function IntegrationCatalog({ selected }) {
   const [open, setOpen] = useState(selected || "ai");
@@ -35,11 +36,12 @@ export default function IntegrationCatalog({ selected }) {
         <p className="text-xs text-pg-muted">Category: {provider.category}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div><Label htmlFor={`provider-${provider.id}-endpoint`}>Endpoint / Server URL</Label><Input id={`provider-${provider.id}-endpoint`} placeholder={provider.id === "ai" ? "http://127.0.0.1:11434" : provider.id === "webhooks" ? "https://example.com/webhook" : "Provider endpoint"} disabled className="mt-1" /></div>
-          <div><Label htmlFor={`provider-${provider.id}-secret`}>API Key / Credential</Label><Input id={`provider-${provider.id}-secret`} type="password" placeholder="Secure credential vault pending" disabled className="mt-1" /></div>
+
           {provider.id === "ai" && <div><Label htmlFor="provider-ai-model">Model</Label><Input id="provider-ai-model" placeholder="Select or enter model" disabled className="mt-1" /></div>}
           {provider.id === "smtp" && <div><Label htmlFor="provider-smtp-port">SMTP Port</Label><Input id="provider-smtp-port" placeholder="587" disabled className="mt-1" /></div>}
         </div>
-        <p className="text-xs text-pg-muted">Fields are disabled until secure backend storage and connection tests are available. No credentials are accepted in this preview.</p>
+        <CredentialConfiguration provider={provider.id} />
+        <p className="text-xs text-pg-muted">Endpoint, model and delivery configuration are still disabled until provider adapters and connection tests are available.</p>
         <p className="text-xs text-pg-warn">Not connected — no requests or data are being sent.</p>
       </div>}
     </div>)}

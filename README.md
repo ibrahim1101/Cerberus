@@ -2,12 +2,14 @@
 
 A React-based frontend and Python FastAPI integration bridge for [PipelineGuard](https://github.com/ibrahim1101/PipelineGuard), a local-first DevSecOps scanner.
 
-> **Development status (October 2026):** Windows Tauri desktop packaging, managed Python bridge launch, and silent installer smoke tests have passed GitHub-hosted CI in prior runs. A physical interactive Windows acceptance test and complete end-to-end security validation remain pending. **CERBERUS is a beta candidate, not a verified production release.**
+> **Development status (October 2026):** CERBERUS is a Windows beta candidate, not a verified production release. GitHub-hosted frontend, desktop and packaged-sidecar validation passed for application commit `091a0f8`. A user physically verified scanning cancellation, active-scan close confirmation, the expanded How to Use guide and fullscreen scrolling. Remaining release checks include exact-installer security, exports, uninstall and checksum verification; no public beta release has been published.
 
 ## Development documentation
 
 - [Engineering history and CI troubleshooting](docs/ENGINEERING_HISTORY.md) — living record of UI development, failed attempts, fixes, verified commits, and remaining work.
 - [CERBERUS v0.1.0 beta release gate](docs/RELEASE_GATE_V0.1.0_BETA.md) — mandatory CI, Windows acceptance, security, documentation and portfolio checks.
+- [Draft Windows beta release notes](docs/RELEASE_NOTES_V0.1.0_BETA1_DRAFT.md) — installation, unsigned installer notice, limitations and publication checklist.
+- [Future AI and webhook integrations](docs/INTEGRATIONS_AI_WEBHOOKS_ROADMAP.md) — planned for after beta; not currently implemented.
 - Update this document after meaningful development batches, including both successful and unsuccessful validation results.
 
 ## Repositories

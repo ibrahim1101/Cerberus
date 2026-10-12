@@ -309,6 +309,10 @@ mod tests {
         assert!(allowed_request("GET", "/status"));
         assert!(allowed_request("POST", "/scan"));
         assert!(allowed_request("GET", "/reports/content?path=%2Ftmp%2Freport.json"));
+        assert!(allowed_request("GET", "/fs/list?path=C%3A%5CUsers%5CExample%20User%5CProject"));
+        assert!(allowed_request("GET", "/fs/list?path=C%3A%5C"));
+        assert!(!allowed_request("GET", "/fs/%2e%2e/status"));
+        assert!(!allowed_request("GET", "/fs/list#fragment"));
     }
 
     #[test]

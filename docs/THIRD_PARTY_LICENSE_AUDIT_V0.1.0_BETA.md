@@ -34,3 +34,9 @@ Date: 2026-10-12. Target release: v0.1.0-beta.1. Candidate binary built from `f3
 - Direct frontend font packages `@fontsource/chakra-petch`, `@fontsource/ibm-plex-sans`, `@fontsource/jetbrains-mono` report OFL-1.1 metadata. Required font notices and embedded font redistribution still need inspection.
 - **Priority fixes:** classify npm entries without license metadata; inspect npm tree problems; distinguish build-only from distributed code; add the root Cargo package license metadata after verifying code provenance; collect full notice texts and license obligations from resolved packages.
 - The new CI workflow builds a fresh candidate and does not alter the previously verified installer from commit `f3dcd08`. Do not reuse that older installer checksum for the newer artifact.
+
+### npm tree triage (artifact 11762888421)
+- Inspected `npm-production-tree.json` from the successful Windows audit workflow. The npm root includes **7 dependency-tree problems**; examples are incompatible peer declarations for React 19, date-fns 4 and ESLint 9, plus a missing TypeScript peer dependency for fork-ts-checker-webpack-plugin 6.5.3. These are install-tree warnings, not evidence of a shipped binary failure.
+- A recursive traversal of package nodes identified **two named third-party entries without a `license` field**: `esprima@1.2.5` and `exit@0.1.2`. The root `frontend@0.1.0` also lacks a license field, but it is first-party and should be audited against the repository's GPLv3 statement. The earlier broad count of 25 was an overcount arising from a different traversal; these are the precisely identified nodes from this artifact.
+- Missing metadata does **not** imply unlicensed code. Retrieve actual package LICENSE files and determine whether each package is in the distributed frontend bundle, build toolchain only, or unused.
+- Before release, separately audit font license text and bundled engine/template provenance. Keep release gate open.

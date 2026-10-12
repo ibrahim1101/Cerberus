@@ -17,10 +17,14 @@ import { Label } from "@/components/ui/label";
 
 export default function IntegrationCatalog({ selected }) {
   const [open, setOpen] = useState(selected || "ai");
-  useEffect(() => { if (selected) setOpen(selected); }, [selected]);
+  const [category, setCategory] = useState(selected === "webhooks" ? "Notifications" : "All");
+  useEffect(() => { if (selected) { setOpen(selected); setCategory(selected === "webhooks" || ["smtp","discord","slack"].includes(selected) ? "Notifications" : "All"); } }, [selected]);
   return <Panel title="Integrations & Providers" testId="settings-integrations-panel">
-    <p className="text-xs text-pg-muted mb-3">Expandable provider configurations. Connections are not yet available; no API keys are collected or stored in this preview.</p>
-    {PROVIDERS.map(provider => <div key={provider.id} className="border-b border-pg-line/50 last:border-0">
+    <p className="text-xs text-pg-muted mb-3">Choose Webhooks & Notifications to configure alert delivery. Provider connections remain unavailable until the secure backend is implemented.</p>
+    <div className="flex flex-wrap gap-2 mb-4" role="group" aria-label="Integration categories">
+      {["All", "AI", "Threat Intelligence", "Notifications"].map(group => <button type="button" key={group} onClick={() => { setCategory(group); setOpen(group === "Notifications" ? "webhooks" : group === "AI" ? "ai" : null); }} className={`rounded-md border px-3 py-2 text-xs ${category === group ? "border-pg-accent text-pg-text bg-pg-surface2" : "border-pg-line text-pg-muted"}`} data-testid={`integration-category-${group.toLowerCase().replaceAll(" ", "-")}`}>{group === "Notifications" ? "Webhooks & Notifications" : group}</button>)}
+    </div>
+    {PROVIDERS.filter(provider => category === "All" || provider.category === category).map(provider => <div key={provider.id} className="border-b border-pg-line/50 last:border-0">
       <button type="button" className="w-full text-left py-3 flex items-center justify-between gap-3" aria-expanded={open === provider.id} onClick={() => setOpen(open === provider.id ? null : provider.id)} data-testid={`integration-${provider.id}-toggle`}>
         <span><span className="text-sm font-medium">{provider.title}</span><span className="block text-xs text-pg-muted">{provider.description}</span></span>
         <span className="text-xs shrink-0 text-pg-muted">{open === provider.id ? "▾" : "▸"} Planned</span>

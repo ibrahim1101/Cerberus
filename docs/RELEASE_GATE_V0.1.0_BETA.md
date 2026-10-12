@@ -102,3 +102,7 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - Checksum validates artifact integrity against the manifest from the same workflow, **not** publisher identity, malware-free status, or license compliance.
 - Final candidate source commit is `f3dcd08`; later documentation-only commits do not alter this installer but must not be mislabeled as the installer source SHA.
 - **Still pending:** third-party license/redistribution review, exact candidate's interactive installation acceptance if required, GitHub prerelease creation and asset upload. Do not claim published until release API confirms.
+
+### 2026-10-12 — Third-party redistribution inventory opened
+- Added [third-party license audit](THIRD_PARTY_LICENSE_AUDIT_V0.1.0_BETA.md) reviewing shipped/runtime dependency manifests, bundled fonts, PyInstaller, Rust/JavaScript transitive packages, and source-code provenance.
+- **License gate remains OPEN:** manifest inspection does not establish compatibility or satisfy required redistribution notices. Do not publish until exact packaged dependency inventories and obligations are reviewed.

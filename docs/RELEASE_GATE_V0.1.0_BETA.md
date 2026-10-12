@@ -55,3 +55,10 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - [ ] Verify an idle application closes normally without a prompt and repeated X clicks do not create duplicate prompts.
 - [ ] Confirm native close handling works on the installed Windows build; React tests alone are insufficient.
 - [ ] Other operations that do not expose tracked progress must be audited before claiming *all* background tasks are protected.
+
+### In-app documentation and contextual help (October 12 candidate)
+- [ ] Settings → How to Use opens a searchable offline guide covering each main workspace, scan profiles, cancellation, findings, dependencies, OSV, history, settings and troubleshooting.
+- [ ] HTML, JSON and SARIF sections explain intended readers, inspection steps, and sensitive-report handling.
+- [ ] Verify contextual ? tooltips on settings fields, project/config selection, scan profiles and report export; audit remaining individual controls for help coverage before claiming every option has a tooltip.
+- [ ] Verify keyboard focus, tooltip accessibility, scrolling and no nested interactive controls on installed Windows build.
+- [ ] Run fresh React tests, Windows desktop validation and installer packaging on the final guide commit.

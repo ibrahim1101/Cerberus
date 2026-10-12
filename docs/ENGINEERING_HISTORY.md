@@ -610,3 +610,8 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `3bdf55d` adds Rust request validation tests for URL-encoded Windows drive paths and malicious encoded route traversal.
 - `4c4819e` adds the new backend/native path gates to the beta checklist.
 - These tests do not yet reproduce GUI-to-native IPC; the user's physical folder-picker failure remains unresolved pending a new installer test and precise error. No release published; separate PipelineGuard repo unchanged.
+
+### 2026-10-12 — Folder-picker native request boundary follow-up
+- Confirmed `38219338157` UI CI and `38219338070` packaged Windows workflow passed on `8e7d6f4`.
+- Reviewed native `allowed_request` implementation: encoded-path rejection applies to the API route before `?`, so encoded Windows separators in query parameters are intentionally permitted. `a2537b7` adds regression coverage for a Windows path containing `Program Files` and for an encoded slash in the route itself; clarifies code comments.
+- Packaged backend path-listing passed in CI, but the screenshot's GUI/native IPC failure is still unverified on the new build. Do not claim it is fixed. Real Windows retest and diagnosis remain mandatory.

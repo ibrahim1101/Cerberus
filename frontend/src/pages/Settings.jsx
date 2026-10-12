@@ -50,6 +50,7 @@ function About() {
   );
 }
 
+
 export default function Settings() {
   const { settings, setSettings, profiles } = useApp();
   const [form, setForm] = useState(settings);

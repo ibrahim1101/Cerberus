@@ -2,7 +2,7 @@ name: PipelineGuard UI CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/cerberus-ai-webhook-integrations]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -38,6 +38,19 @@ jobs:
           DISABLE_EMERGENT_OVERLAY: 'true'
           REACT_APP_BACKEND_URL: http://127.0.0.1:8000
         run: yarn build
+
+  integrations-registry:
+    name: Integration registry safety tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install backend test dependencies
+        run: python -m pip install fastapi==0.110.1 pytest pytest-xdist keyring
+      - name: Verify integration registry
+        run: python -m pytest backend/tests/test_integrations_registry.py -q
 
   scanner-regressions:
     name: Local scanner precision tests

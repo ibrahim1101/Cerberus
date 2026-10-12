@@ -1,5 +1,6 @@
-import { NavLink } from "react-router-dom";
-import { FileText, Globe2, History, LayoutDashboard, Package, Radar, Settings2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { FileText, Globe2, History, LayoutDashboard, Package, Radar, Settings2, ShieldAlert, ShieldCheck, ChevronDown, BrainCircuit, Webhook, Shield, Mail } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 
 const NAV = [
@@ -11,9 +12,18 @@ const NAV = [
   { to: "/reports", label: "Reports", icon: FileText, id: "reports" },
   { to: "/history", label: "Scan History", icon: History, id: "history" },
   { to: "/settings", label: "Settings", icon: Settings2, id: "settings" },
+  { to: "/integrations", label: "AI & Integrations", icon: BrainCircuit, id: "integrations" },
 ];
 
+const EXPANDABLE = [
+  { id: "ai", label: "AI Security Assistant", icon: BrainCircuit, children: [["AI Providers", "ai"], ["Models & API Keys", "ai"], ["Finding Explanations", "ai"]] },
+  { id: "intel-integrations", label: "Threat Intelligence", icon: Shield, children: [["VirusTotal", "virustotal"], ["AbuseIPDB", "abuseipdb"], ["AlienVault OTX", "otx"], ["GreyNoise", "greynoise"], ["Shodan", "shodan"]] },
+  { id: "automations", label: "Webhooks & Alerts", icon: Webhook, children: [["Webhooks", "webhooks"], ["SMTP / Email", "smtp"], ["Discord", "discord"], ["Slack", "slack"]] },
+];
 export default function Sidebar() {
+  const location = useLocation();
+  const [expanded, setExpanded] = useState({});
+
   const { latest } = useApp();
   const counts = { findings: latest?.summary?.total_findings, deps: latest?.dependencies?.insights?.total };
   return (

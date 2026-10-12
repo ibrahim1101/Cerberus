@@ -17,6 +17,7 @@ import OsvIntel from "@/pages/OsvIntel";
 import Reports from "@/pages/Reports";
 import History from "@/pages/History";
 import Settings from "@/pages/Settings";
+import Integrations from "@/pages/Integrations";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="history" element={<History />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="integrations" element={<Integrations />} />
           </Route>
         </Routes>
       </HashRouter>

@@ -15,9 +15,11 @@ from fastapi.responses import JSONResponse  # noqa: E402
 from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 
 from bridge.routes import router  # noqa: E402
+from bridge.integrations import router as integrations_router  # noqa: E402
 
 app = FastAPI(title="PipelineGuard Bridge", docs_url=None, redoc_url=None)
 app.include_router(router)
+app.include_router(integrations_router)
 
 TOKEN = os.environ.get("PIPELINEGUARD_TOKEN")
 if os.environ.get("PIPELINEGUARD_DESKTOP_MODE") == "1" and not TOKEN:

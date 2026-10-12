@@ -102,8 +102,16 @@ fn spawn_development_bridge() -> Result<(Child, String, u16), String> {
 // cerberus-runtime/; never search PATH for an untrusted sidecar.
 fn packaged_sidecar_paths(executable: &std::path::Path) -> Result<(PathBuf, PathBuf), String> {
     let parent = executable.parent().ok_or("Missing desktop executable directory")?;
-    let runtime = parent.join("cerberus-runtime");
-    let sidecar = runtime.join("cerberus-bridge.exe");
+    // Windows/Linux portable layouts use an adjacent runtime directory.
+    // macOS .app packages locate the runtime under Contents/Resources.
+    let adjacent = parent.join("cerberus-runtime");
+    #[cfg(target_os = "macos")]
+    let runtime = if adjacent.is_dir() { adjacent } else {
+        parent.parent().ok_or("Missing macOS Contents directory")?.join("Resources").join("cerberus-runtime")
+    };
+    #[cfg(not(target_os = "macos"))]
+    let runtime = adjacent;
+    let sidecar = runtime.join(if cfg!(windows) { "cerberus-bridge.exe" } else { "cerberus-bridge" });
     let engine = runtime.join("engine");
     if !sidecar.is_file() || !engine.join("pipelineguard").is_dir() {
         return Err("Packaged Cerberus runtime is missing".into());
@@ -247,8 +255,8 @@ fn main() {
     // Production always requires a native-managed packaged bridge; only debug
     // builds may use an explicitly configured development bridge token.
     let packaged_requested = std::env::current_exe().ok()
-        .and_then(|exe| exe.parent().map(|p| p.join("cerberus-runtime").exists()))
-        .unwrap_or(false);
+        .and_then(|exe| packaged_sidecar_paths(&exe).ok())
+        .is_some();
     let managed = match if packaged_requested { spawn_packaged_bridge() } else { spawn_development_bridge() } {
         Ok((mut child, token, port)) => {
             match wait_for_managed_bridge(&mut child, port, &token) {

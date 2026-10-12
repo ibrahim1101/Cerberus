@@ -106,3 +106,10 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 ### 2026-10-12 — Third-party redistribution inventory opened
 - Added [third-party license audit](THIRD_PARTY_LICENSE_AUDIT_V0.1.0_BETA.md) reviewing shipped/runtime dependency manifests, bundled fonts, PyInstaller, Rust/JavaScript transitive packages, and source-code provenance.
 - **License gate remains OPEN:** manifest inspection does not establish compatibility or satisfy required redistribution notices. Do not publish until exact packaged dependency inventories and obligations are reviewed.
+
+### 2026-10-13 — Newest Windows candidate SHA-256 independently verified
+- Built from commit `8c9375b89c9c8424fd9a65600c25095f5eca8f96` by successful Windows run [38292920711](https://github.com/ibrahim1101/Cerberus/actions/runs/38292920711).
+- Downloaded Actions installer artifact `11767518118` and checksum artifact `11766858320`; independently extracted both ZIP archives, hashed the installer bytes and compared against `SHA256SUMS.txt`: **MATCH**.
+- File: `Cerberus-Setup-0.1.0.exe` (19,303,000 bytes); SHA-256: `81046d7b4dfe22c014ee8d92bd61fe2b4618d7ccec2c64e655cb898e027a2760`.
+- Checksum matching confirms agreement with CI manifest, not publisher signing, malware-free status, or third-party license compliance.
+- Release remains unpublished; third-party notices/provenance review remains an open gate.

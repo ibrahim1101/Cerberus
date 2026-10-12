@@ -40,3 +40,11 @@ Date: 2026-10-12. Target release: v0.1.0-beta.1. Candidate binary built from `f3
 - A recursive traversal of package nodes identified **two named third-party entries without a `license` field**: `esprima@1.2.5` and `exit@0.1.2`. The root `frontend@0.1.0` also lacks a license field, but it is first-party and should be audited against the repository's GPLv3 statement. The earlier broad count of 25 was an overcount arising from a different traversal; these are the precisely identified nodes from this artifact.
 - Missing metadata does **not** imply unlicensed code. Retrieve actual package LICENSE files and determine whether each package is in the distributed frontend bundle, build toolchain only, or unused.
 - Before release, separately audit font license text and bundled engine/template provenance. Keep release gate open.
+
+### Verified structured summary — workflow 38290244949 (commit `65e7795`)
+Downloaded `cerberus-windows-license-inventory` artifact **11765880854** and read its generated `summary.json`:
+- Python build-environment packages: **29**.
+- Cargo metadata packages: **447**; only `pipelineguard-desktop` (first-party root package) lacks a license field.
+- Distinct npm package name/version nodes: **1,392**; missing license fields: `esprima@1.2.5`, `exit@0.1.2`, and first-party `frontend@0.1.0`.
+- Seven npm tree problems: invalid `react@19.0.0`, `date-fns@4.1.0`, `eslint@9.23.0`, `picomatch@2.3.2`; missing TypeScript peer dependencies for `fork-ts-checker-webpack-plugin@6.5.3`, `tsutils@3.21.0`, and `ts-node@10.9.2`.
+- Counts are from the workflow's installed dependency tree, **not** the final distributed payload. Review package LICENSE texts, shipping status and provenance before asserting compliance. Do not interpret successful build as resolving peer warnings.

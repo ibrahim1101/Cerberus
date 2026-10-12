@@ -1,6 +1,6 @@
 # CERBERUS AI and webhook implementation — Phase 1
 
-Branch: `feat/cerberus-ai-webhook-integrations`. This branch is independent of `feat/cerberus-linux-macos-preview` and the Windows beta on `main`.
+Status: foundation work merged into `main` via PR #1 on 2026-10-12. The old feature branches were deleted. Credential management and provider catalog exist, but AI requests, model discovery, webhook delivery and actual provider adapters remain unimplemented. Do not confuse the Phase 1 acceptance criteria below with completed functionality.
 
 ## Phase 1 acceptance
 - Settings tabs: AI Providers and Webhooks, with disabled/unconfigured states and no fake connection success.

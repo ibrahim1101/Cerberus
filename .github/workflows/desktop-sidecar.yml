@@ -220,9 +220,9 @@ jobs:
           $required = @(
             'esprima--LICENSE.BSD',
             'exit--LICENSE-MIT',
-            'fontsource-chakra-petch--OFL.txt',
-            'fontsource-ibm-plex-sans--OFL.txt',
-            'fontsource-jetbrains-mono--OFL.txt'
+            'fontsource-chakra-petch--LICENSE',
+            'fontsource-ibm-plex-sans--LICENSE',
+            'fontsource-jetbrains-mono--LICENSE'
           )
           New-Item -ItemType Directory -Path $destination -Force | Out-Null
           foreach ($name in $required) {

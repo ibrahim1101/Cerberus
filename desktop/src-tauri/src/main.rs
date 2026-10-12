@@ -181,6 +181,9 @@ struct BridgeResponse {
 fn unsafe_encoded_path(path: &str) -> bool {
     let pathname = path.split('?').next().unwrap_or("");
     let lower = pathname.to_ascii_lowercase();
+    // Only the API route is security-sensitive here. Query parameters are
+    // URL-encoded by the frontend and legitimately contain Windows separators
+    // (%5C), spaces, and encoded filesystem paths.
     ["%2e", "%2f", "%5c", "%25"].iter().any(|code| lower.contains(code))
 }
 
@@ -311,6 +314,8 @@ mod tests {
         assert!(allowed_request("GET", "/reports/content?path=%2Ftmp%2Freport.json"));
         assert!(allowed_request("GET", "/fs/list?path=C%3A%5CUsers%5CExample%20User%5CProject"));
         assert!(allowed_request("GET", "/fs/list?path=C%3A%5C"));
+        assert!(allowed_request("GET", "/fs/list?path=C%3A%5CProgram%20Files%5CMy%20Project"));
+        assert!(!allowed_request("GET", "/fs%5Clist?path=C%3A%5C"));
         assert!(!allowed_request("GET", "/fs/%2e%2e/status"));
         assert!(!allowed_request("GET", "/fs/list#fragment"));
     }

@@ -47,3 +47,11 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - [ ] Verify cancellation does not create completed scan history or partial reports, and a new scan can start after cancellation.
 - [ ] Test large-file and online OSV cancellation latency on physical Windows. **Cancellation is cooperative and may not interrupt a blocking operation immediately.**
 - [ ] Verify fresh frontend/backend and Windows installer workflows before distributing cancellation build.
+
+### Desktop exit protection (October 12 candidate)
+- [ ] Verify Windows title-bar X intercepts close when a scan is active, showing selected project, current stage and progress; **Keep Open** preserves the scan.
+- [ ] Verify confirming exit closes the app and its managed backend; cancelled or interrupted scans must not be presented as completed.
+- [ ] Verify report/history loading triggers an exit warning and inability to query scanner state triggers a conservative warning.
+- [ ] Verify an idle application closes normally without a prompt and repeated X clicks do not create duplicate prompts.
+- [ ] Confirm native close handling works on the installed Windows build; React tests alone are insufficient.
+- [ ] Other operations that do not expose tracked progress must be audited before claiming *all* background tasks are protected.

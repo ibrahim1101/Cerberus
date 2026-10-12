@@ -294,7 +294,9 @@ fn main() {
                 let gate = window.state::<CloseGate>();
                 if !gate.0.load(Ordering::SeqCst) {
                     api.prevent_close();
-                    let _ = window.eval("window.dispatchEvent(new Event(\"cerberus-close-requested\"))");
+                    if let Some(webview) = window.get_webview("main") {
+                        let _ = webview.eval("window.dispatchEvent(new Event(\"cerberus-close-requested\"))");
+                    }
                 }
             }
             if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {

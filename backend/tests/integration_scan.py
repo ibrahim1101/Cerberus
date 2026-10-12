@@ -14,7 +14,17 @@ with tempfile.TemporaryDirectory(prefix="pipelineguard-ci-project-") as root:
     project.mkdir()
     (project / "requirements.txt").write_text("requests==2.31.0\n", encoding="utf-8")
     (project / "main.py").write_text("def greeting():\n    return 'hello'\n", encoding="utf-8")
+    (project / "nested folder").mkdir()
+    (project / "scan-config.json").write_text("{}", encoding="utf-8")
     with TestClient(app) as client:
+        # Exercise the same authenticated folder-list endpoint used by the desktop picker.
+        folder = client.get("/api/fs/list", headers=headers, params={"path": str(project.resolve())})
+        assert folder.status_code == 200, folder.text
+        listing_data = folder.json()
+        assert listing_data["path"] == str(project.resolve()), listing_data
+        assert "nested folder" in listing_data["directories"], listing_data
+        assert "scan-config.json" in listing_data["json_files"], listing_data
+        assert client.get("/api/fs/list", params={"path": str(project.resolve())}).status_code == 401
         start = client.post("/api/scan", headers=headers, json={
             "project": str(project.resolve()), "profile": "standard", "online": False
         })

@@ -93,6 +93,7 @@ export const api = {
   saveEngineConfig: (path, config) => request("PUT", "/engine-config", { path, config }),
   /** @returns {Promise<ScanState>} */
   startScan: (body) => request("POST", "/scan", body),
+  cancelScan: () => request("POST", "/scan/cancel"),
   /** @returns {Promise<ScanState>} */
   scanState: () => request("GET", "/scan/state"),
   latestScan: () => request("GET", "/scans/latest"),

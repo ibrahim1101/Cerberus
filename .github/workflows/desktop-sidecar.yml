@@ -2,7 +2,7 @@ name: Packaged Python sidecar validation
 
 on:
   push:
-    branches: [main, feat/cerberus-ai-webhook-integrations]
+    branches: [main]
     paths:
       - 'backend/**'
       - 'desktop/**'
@@ -11,7 +11,7 @@ on:
       - 'docs/ENGINEERING_HISTORY.md'
       - '.github/workflows/desktop-sidecar.yml'
   pull_request:
-    branches: [main, feat/cerberus-ai-webhook-integrations]
+    branches: [main]
     paths:
       - 'backend/**'
       - 'desktop/**'

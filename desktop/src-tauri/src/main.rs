@@ -294,7 +294,7 @@ fn main() {
                 let gate = window.state::<CloseGate>();
                 if !gate.0.load(Ordering::SeqCst) {
                     api.prevent_close();
-                    if let Some(webview) = window.get_webview("main") {
+                    if let Some(webview) = window.app_handle().get_webview_window("main") {
                         let _ = webview.eval("window.dispatchEvent(new Event(\"cerberus-close-requested\"))");
                     }
                 }

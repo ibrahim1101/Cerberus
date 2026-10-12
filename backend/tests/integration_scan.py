@@ -72,4 +72,6 @@ with tempfile.TemporaryDirectory(prefix="pipelineguard-ci-project-") as root:
         html_listing = client.get("/api/reports", headers=headers, params={"directory": str(Path(root).resolve())})
         assert html_listing.status_code == 200, html_listing.text
         assert any(item["path"] == str(html_path) and item["format"] == "html" for item in html_listing.json()["files"])
+        assert client.post("/api/scan/cancel", headers=headers).status_code == 409
+        assert client.post("/api/scan/cancel").status_code == 401
         print("Offline scan, history, JSON and HTML exports, previews and listing: PASS")

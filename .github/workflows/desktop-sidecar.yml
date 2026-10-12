@@ -127,6 +127,22 @@ jobs:
             cargo tauri build --no-bundle
             if ($LASTEXITCODE -ne 0) { throw 'Tauri production desktop build failed' }
           } finally { Pop-Location }
+      - name: Inventory frontend and Rust dependency licenses
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist/license-inventory -Force | Out-Null
+          Push-Location frontend
+          try {
+            npm ls --all --json --long --omit=dev > ../dist/license-inventory/npm-production-tree.json
+            # npm ls can return nonzero for peer dependency inconsistencies; preserve its output for audit.
+            $global:LASTEXITCODE = 0
+          } finally { Pop-Location }
+          Push-Location desktop/src-tauri
+          try {
+            cargo metadata --format-version 1 --locked > ../../dist/license-inventory/cargo-metadata.json
+            if ($LASTEXITCODE -ne 0) { throw 'Cargo dependency inventory failed' }
+          } finally { Pop-Location }
+          Write-Host 'Dependency inventory captured; redistribution obligations require manual review'
       - name: Stage native desktop executable beside packaged runtime
         shell: pwsh
         run: |
@@ -327,6 +343,12 @@ jobs:
           path: dist/Cerberus-Setup-0.1.0.exe
           if-no-files-found: error
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-license-inventory
+          path: dist/license-inventory/
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify packaged sidecar fails closed without desktop token
         shell: pwsh
         run: |

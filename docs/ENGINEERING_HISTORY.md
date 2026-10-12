@@ -603,3 +603,10 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `cbda802` changes frontend native IPC error handling to expose only a small allowlist of safe native failure reasons (invalid request, uninitialized bridge, local bridge unavailable, invalid response), while keeping arbitrary native error text redacted.
 - `5d9d928` adds regression coverage for allowlisted vs private-path error handling. `a6ebb0d` adds the physical issue to release gates.
 - Must reproduce using newly packaged Windows build and inspect specific failure reason before claiming folder browser repaired. No release published; separate PipelineGuard repository unchanged.
+
+### 2026-10-12 — Windows folder-picker regression coverage
+- Confirmed latest frontend/backend CI `38216553555` and packaged sidecar `38216553588` green at `71ed552f`.
+- `ca6a691` adds a Windows packaged sidecar smoke test of `/api/fs/list` using an encoded local path with spaces and a nested directory. This checks the exact staged runtime rather than a development backend.
+- `3bdf55d` adds Rust request validation tests for URL-encoded Windows drive paths and malicious encoded route traversal.
+- `4c4819e` adds the new backend/native path gates to the beta checklist.
+- These tests do not yet reproduce GUI-to-native IPC; the user's physical folder-picker failure remains unresolved pending a new installer test and precise error. No release published; separate PipelineGuard repo unchanged.

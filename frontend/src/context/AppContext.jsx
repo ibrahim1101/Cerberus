@@ -78,6 +78,8 @@ export function AppProvider({ children }) {
         setViewScan(null);
         if (s.status === "completed") {
           toast.success(`Scan complete — ${s.result?.status}, score ${s.result?.score}/100`);
+        } else if (s.status === "cancelled") {
+          toast.info("Scan cancelled — no partial report saved");
         } else if (s.status === "failed") {
           toast.error(`Scan failed: ${s.error}`);
         }
@@ -194,6 +196,18 @@ export function AppProvider({ children }) {
     root.classList.toggle("reduce-motion", settings.reduced_motion);
   }, [settings]);
 
+  const cancelScan = useCallback(async () => {
+    try {
+      const state = await api.cancelScan();
+      if (mountedRef.current) setScanState(state);
+      toast.info("Cancellation requested — waiting for scanner checkpoint");
+      return true;
+    } catch (e) {
+      toast.error(e.message);
+      return false;
+    }
+  }, []);
+
   const startScan = useCallback(async () => {
     if (!selection.project) {
       toast.error("Select a project folder first");
@@ -230,7 +244,7 @@ export function AppProvider({ children }) {
 
   const value = {
     backend, status, profiles, settings, setSettings, latest, latestLoaded, reportsError, reportsLoading, history, activity, scanState,
-    osvOnline, setOsvOnline, selection, setSelection, startScan, refreshData, retry: init,
+    osvOnline, setOsvOnline, selection, setSelection, startScan, cancelScan, refreshData, retry: init,
     viewScan, openScan, clearViewScan: () => setViewScan(null), currentScan: viewScan || latest,
     running: scanState.status === "running",
   };

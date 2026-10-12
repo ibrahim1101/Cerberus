@@ -81,4 +81,10 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - Main React/backend CI [38279419623](https://github.com/ibrahim1101/Cerberus/actions/runs/38279419623) passed on `4802eb2`.
 - Windows packaged sidecar [38277217579](https://github.com/ibrahim1101/Cerberus/actions/runs/38277217579) passed on documentation commit `5e762bc8`. Final release installer requires same-commit CI and physical acceptance.
 - The separate `ibrahim1101/PipelineGuard` repository is now archived, not deleted; CERBERUS bundles the engine.
-- **Next blocking action:** user physical Windows retest of the latest installer, especially folder-picker native IPC and report export. Do not publish a beta solely on CI success.
+- **Windows retest update:** user subsequently confirmed the five-step acceptance flow works; retain remaining untested release gates before publication.
+
+### 2026-10-12 — User-confirmed Windows smoke acceptance
+- User reports that the latest tested Windows CERBERUS build successfully launches with engine bridge connected, opens the native folder picker, selects a source directory, scans and displays findings, and exports/opens an HTML report (confirmation to the requested five-step sequence).
+- This resolves the **previously observed folder-picker blocker for that tested build**; keep regression coverage and retest if installer binaries change.
+- This does **not** confirm JSON/SARIF export, OSV behavior, credential redaction, installer checksum matching, Defender/SmartScreen, authenticated endpoint rejection, or final release installation lifecycle.
+- React/backend CI [38279607009](https://github.com/ibrahim1101/Cerberus/actions/runs/38279607009) passed on `092676e`. Linux/macOS preview [38279419759](https://github.com/ibrahim1101/Cerberus/actions/runs/38279419759) was still running when checked.

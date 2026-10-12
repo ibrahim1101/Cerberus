@@ -12,6 +12,7 @@ const NAV = [
   { to: "/reports", label: "Reports", icon: FileText, id: "reports" },
   { to: "/history", label: "Scan History", icon: History, id: "history" },
   { to: "/settings", label: "Settings", icon: Settings2, id: "settings" },
+  { to: "/integrations", label: "AI & Integrations", icon: BrainCircuit, id: "integrations" },
 ];
 
 const EXPANDABLE = [

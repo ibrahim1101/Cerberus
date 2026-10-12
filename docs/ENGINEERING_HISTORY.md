@@ -639,3 +639,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Desktop validation run `38230448592` failed Rust E0599 because `tauri::Window` has no `get_webview` method. Earlier `window.eval` had also failed; the close-confirmation feature is not release verified.
 - Commit `3c97475` resolves the main webview through the app manager (`window.app_handle().get_webview_window("main")`) before invoking its script evaluation method.
 - Fresh Rust/Windows packaging CI and real Windows close-confirmation acceptance remain required. No release published; separate PipelineGuard repository untouched.
+
+### 2026-10-12 — In-app user guide and contextual help
+- User physically confirmed Cancel Scan and native close confirmation work during a Windows scan.
+- Added reusable accessible HelpTip component (`26537c7`) and searchable offline How to Use guide (`36cb470`) covering workspaces, scans, findings, false positives, OSV, settings, HTML/JSON/SARIF and troubleshooting.
+- Settings now has How to Use tab and field-level ? help (`6a68922`); Scan Project adds context help (`390be2a`); Reports explains formats and destination (`34c78fa`, corrected nested button layout in `b2fea6d`).
+- Release checklist updated (`d680243`). Remaining: CI verification, physical Windows guide acceptance and broader per-control tooltip audit. Separate PipelineGuard repository unchanged.

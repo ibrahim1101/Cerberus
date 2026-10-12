@@ -4,3 +4,6 @@
 fastapi==0.110.1
 uvicorn==0.25.0
 python-dotenv>=1.0.1
+
+# Cross-platform operating-system credential store (no plaintext fallback)
+keyring>=25.0,<27

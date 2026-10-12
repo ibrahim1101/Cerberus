@@ -11,10 +11,12 @@ import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import { InlineError, KV, Note, PageHeader, Panel } from "@/components/common/Panel";
 import EngineConfigEditor from "@/components/settings/EngineConfigEditor";
+import HowToUse from "@/components/settings/HowToUse";
+import HelpTip from "@/components/common/HelpTip";
 
 const Field = ({ label, hint, children }) => (
   <div className="py-3 border-b border-pg-line/40 last:border-0 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-3 items-center">
-    <div><p className="text-sm">{label}</p>{hint && <p className="text-xs text-pg-muted mt-0.5 leading-relaxed">{hint}</p>}</div>
+    <div><p className="text-sm">{label}<HelpTip title={label}>{hint || `Configure ${label.toLowerCase()} in CERBERUS. See Settings → How to Use for full instructions.`}</HelpTip></p>{hint && <p className="text-xs text-pg-muted mt-0.5 leading-relaxed">{hint}</p>}</div>
     <div className="min-w-0">{children}</div>
   </div>
 );
@@ -81,7 +83,7 @@ export default function Settings() {
       <PageHeader title="Settings" description="Preferences are stored locally in the Cerberus local data folder. Policy settings live in your JSON configuration file." />
       <Tabs defaultValue="general">
         <div className="overflow-x-auto pg-scroll mb-4"><TabsList className="bg-pg-surface border border-pg-line w-max min-w-full" data-testid="settings-tabs">
-          {[["general", "General"], ["engine", "Scan Engine"], ["intel", "Vulnerability Intelligence"], ["appearance", "Appearance"], ["reports", "Reports"], ["about", "About"]].map(([v, l]) => (
+          {[["general", "General"], ["engine", "Scan Engine"], ["intel", "Vulnerability Intelligence"], ["appearance", "Appearance"], ["reports", "Reports"], ["guide", "How to Use"], ["about", "About"]].map(([v, l]) => (
             <TabsTrigger key={v} value={v} className="data-[state=active]:bg-pg-surface2" data-testid={`settings-tab-${v}`}>{l}</TabsTrigger>
           ))}
         </TabsList></div>
@@ -120,6 +122,7 @@ export default function Settings() {
             {saveBar}
           </Panel>
         </TabsContent>
+        <TabsContent value="guide"><HowToUse /></TabsContent>
         <TabsContent value="about"><About /></TabsContent>
       </Tabs>
       <Label className="sr-only">settings</Label>

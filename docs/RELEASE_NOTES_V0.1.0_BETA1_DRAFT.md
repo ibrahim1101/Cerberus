@@ -42,3 +42,10 @@
 - User physically verified folder selection, scan/findings, HTML/JSON/SARIF exports, History, OSV online/offline, application close/relaunch, cancellation and active-scan exit confirmation on a Windows build. Do not equate user-tested build with the new candidate installer unless confirmed identical.
 - Linux/macOS are experimental portable CI previews only, with no user-device validation; do not include them as supported installer assets in this Windows beta.
 - Before publishing: retrieve the exact checksum value, independently compare the downloaded installer, verify third-party license notices/redistribution, confirm installed build corresponds to candidate, and create a prerelease with assets.
+
+## Updated Windows candidate — 2026-10-13
+- Windows packaging [38292920711](https://github.com/ibrahim1101/Cerberus/actions/runs/38292920711), desktop shell [38292920733](https://github.com/ibrahim1101/Cerberus/actions/runs/38292920733), frontend CI [38292920737](https://github.com/ibrahim1101/Cerberus/actions/runs/38292920737), and experimental Unix previews [38292920706](https://github.com/ibrahim1101/Cerberus/actions/runs/38292920706) passed on source commit `8c9375b89c9c8424fd9a65600c25095f5eca8f96`.
+- Downloaded Windows NSIS installer artifact **11767518118** and matching checksum artifact **11766858320** for candidate verification. **Do not use the older `f3dcd08` checksum for this build.**
+- This candidate includes the native Rust package's GPL-3.0-only metadata declaration. Later audit-documentation commits are not part of the built binary.
+- Third-party audit identifies `esprima@1.2.5` as BSD-2-Clause and `exit@0.1.2` as MIT by upstream/package research; exact shipped notices and full redistribution clearance remain outstanding.
+- Release remains **draft/unpublished**. Do not publish until the exact candidate's SHA-256 is independently verified and required license texts/notices are bundled.

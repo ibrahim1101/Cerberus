@@ -25,3 +25,12 @@ Date: 2026-10-12. Target release: v0.1.0-beta.1. Candidate binary built from `f3
 - Windows packaged-sidecar workflow [38282741534](https://github.com/ibrahim1101/Cerberus/actions/runs/38282741534) passed on candidate `f3dcd08`.
 - Independently compared the extracted installer against the same-run `SHA256SUMS.txt` manifest; SHA-256: `b97723ef0509795b7c8d1ded65ab31ec5a4492026f639c898dcd0798b8fb1f4a`.
 - **Do not publish v0.1.0-beta.1 as license-cleared** until the above obligations are verified. This document is an inventory and checklist, not legal advice or certification.
+
+## CI artifact review — 2026-10-12
+- [Windows license-inventory workflow #38285349542](https://github.com/ibrahim1101/Cerberus/actions/runs/38285349542) completed successfully at `e0b64c7`. Its `cerberus-windows-license-inventory` artifact was downloaded and inspected.
+- Python **build environment**: 29 distributions, all with at least one license/classifier metadata field. This is not an exact list of bundled Python files.
+- Rust `cargo metadata`: 447 packages, including the root `pipelineguard-desktop` package, whose own Cargo metadata has no license field; 446 third-party packages report a license expression. Some include MPL-2.0 or CDLA-Permissive-2.0. This is dependency metadata, not a legal compatibility ruling.
+- npm `npm ls --all --json --long --omit=dev`: 1,414 distinct package-name/version combinations were observed in the recursive output, with 25 lacking a license field. **Important:** the output also reports invalid and missing peer dependencies, and may contain dev/build-only packages despite the omit flag; do not treat these counts as a definitive shipped-runtime SBOM.
+- Direct frontend font packages `@fontsource/chakra-petch`, `@fontsource/ibm-plex-sans`, `@fontsource/jetbrains-mono` report OFL-1.1 metadata. Required font notices and embedded font redistribution still need inspection.
+- **Priority fixes:** classify npm entries without license metadata; inspect npm tree problems; distinguish build-only from distributed code; add the root Cargo package license metadata after verifying code provenance; collect full notice texts and license obligations from resolved packages.
+- The new CI workflow builds a fresh candidate and does not alter the previously verified installer from commit `f3dcd08`. Do not reuse that older installer checksum for the newer artifact.

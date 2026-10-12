@@ -100,3 +100,17 @@ Downloaded `cerberus-windows-license-inventory` artifact **11765880854** and rea
 - **Physical device testing:** DEFERRED by maintainer; it is not a licensing prerequisite and is not represented as complete.
 
 No automated scan or assistant statement can convert unknown rights into permission. Obtain original source license/provenance evidence and confirm notice/source obligations before publicly distributing binaries as license-cleared. This document is a technical compliance review, not a legal opinion.
+
+
+## AI-assisted source provenance clarification — 2026-10-13
+
+The maintainer states that CERBERUS was created using **Emergent and ChatGPT**. This changes the source-provenance assessment from "no identified origin" to "AI-assisted development, with named providers."
+
+Official provider terms reviewed:
+- Emergent Terms of Service, sections 7.2–7.3: https://app.emergentagent.com/terms-of-service — states users retain ownership of generated code/applications and may distribute and open-source their implementations, **subject to third-party open-source licenses**.
+- Emergent ownership guidance: https://help.emergent.sh/your-data-ownership — reiterates user ownership of generated applications.
+- OpenAI Terms of Use: https://openai.com/policies/terms-of-use/ — assigns OpenAI's rights, if any, in output to the user to the extent permitted by law, excluding third-party output.
+
+**Updated provenance decision:** Use of Emergent and ChatGPT **does not itself create a provider-ownership barrier** to publishing the generated application. This resolves the question whether the providers categorically forbid redistribution of user-generated CERBERUS code. It does **not** establish that every generated file is original or clear any embedded third-party code, proprietary platform assets, templates, or dependencies. The maintainer's statement is not an independently authenticated file-by-file rights audit.
+
+**Overall redistribution decision remains NOT VERIFIED** pending complete packaged third-party notices, GPLv3 corresponding-source delivery, and review of any third-party-origin code/assets. Do not represent this clarification as full legal certification.

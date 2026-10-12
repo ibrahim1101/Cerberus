@@ -142,6 +142,40 @@ jobs:
             cargo metadata --format-version 1 --locked > ../../dist/license-inventory/cargo-metadata.json
             if ($LASTEXITCODE -ne 0) { throw 'Cargo dependency inventory failed' }
           } finally { Pop-Location }
+          @'
+          import json
+          from pathlib import Path
+          root = Path("dist/license-inventory")
+          npm = json.loads((root / "npm-production-tree.json").read_text(encoding="utf-8-sig"))
+          cargo = json.loads((root / "cargo-metadata.json").read_text(encoding="utf-8-sig"))
+          python = json.loads((root / "python-build-environment.json").read_text(encoding="utf-8-sig"))
+          missing = set()
+          seen = set()
+          def walk(name, node):
+              if not isinstance(node, dict):
+                  return
+              version = node.get("version")
+              if version:
+                  seen.add((name, version))
+                  if not node.get("license"):
+                      missing.add((name, version))
+              for child, data in node.get("dependencies", {}).items():
+                  walk(child, data)
+          walk(npm.get("name", "root"), npm)
+          rust = cargo.get("packages", [])
+          summary = {
+              "disclaimer": "Metadata inventory only; not an exact shipped SBOM or license clearance",
+              "python_build_environment_packages": len(python),
+              "cargo_metadata_packages": len(rust),
+              "cargo_packages_without_license": sorted(p.get("name", "") for p in rust if not p.get("license")),
+              "npm_distinct_name_versions": len(seen),
+              "npm_nodes_without_license": [{"name": n, "version": v} for n, v in sorted(missing)],
+              "npm_problems": npm.get("problems", []),
+          }
+          (root / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+          print(json.dumps({k: v for k, v in summary.items() if k != "npm_problems"}, indent=2))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'License inventory summary failed' }
           Write-Host 'Dependency inventory captured; redistribution obligations require manual review'
       - name: Stage native desktop executable beside packaged runtime
         shell: pwsh

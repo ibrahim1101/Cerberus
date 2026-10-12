@@ -1,6 +1,6 @@
 # CERBERUS v0.1.0-beta.1 — Windows pre-release notes (DRAFT)
 
-**Status: draft, not published.** The exact release commit, installer checksum and final interactive acceptance evidence must be filled in before publication.
+**Status: draft, not published.** Windows packaged installer CI and main CI passed on commit `f3dcd08db464db1c649e698f6d30719371486c3a`. This is a **candidate**, not a published release tag. The exact installer SHA-256 must be copied from the matching workflow artifact and third-party redistribution review completed before publication.
 
 ## What this beta includes
 - Windows desktop application with bundled local Python security scanning engine and managed backend lifecycle.
@@ -33,3 +33,12 @@
 - [ ] Verify installer SHA-256 against the checksum artifact from the **same workflow run**.
 - [ ] Review licensing and redistribution rights of bundled code and dependencies.
 - [ ] Replace draft markers with release SHA, CI URLs, checksum and known issues; publish as a **pre-release**, not a stable release.
+
+## Verified candidate build and artifacts (October 12, 2026)
+- Source commit: `f3dcd08db464db1c649e698f6d30719371486c3a`.
+- [Windows packaged sidecar/installer CI — PASS, run 38282741534](https://github.com/ibrahim1101/Cerberus/actions/runs/38282741534). Workflow performs silent installer/uninstaller smoke, packaged bridge authentication tests, and installer/checksum comparison.
+- [Main UI/backend CI — PASS, run 38282741427](https://github.com/ibrahim1101/Cerberus/actions/runs/38282741427).
+- Artifacts confirmed present on packaging run: `cerberus-windows-nsis-installer-preview`, `cerberus-windows-nsis-installer-checksum`, and `cerberus-windows-standalone-preview` (7-day retention). **Artifacts have not yet been attached to a GitHub release.**
+- User physically verified folder selection, scan/findings, HTML/JSON/SARIF exports, History, OSV online/offline, application close/relaunch, cancellation and active-scan exit confirmation on a Windows build. Do not equate user-tested build with the new candidate installer unless confirmed identical.
+- Linux/macOS are experimental portable CI previews only, with no user-device validation; do not include them as supported installer assets in this Windows beta.
+- Before publishing: retrieve the exact checksum value, independently compare the downloaded installer, verify third-party license notices/redistribution, confirm installed build corresponds to candidate, and create a prerelease with assets.

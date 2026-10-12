@@ -615,3 +615,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Confirmed `38219338157` UI CI and `38219338070` packaged Windows workflow passed on `8e7d6f4`.
 - Reviewed native `allowed_request` implementation: encoded-path rejection applies to the API route before `?`, so encoded Windows separators in query parameters are intentionally permitted. `a2537b7` adds regression coverage for a Windows path containing `Program Files` and for an encoded slash in the route itself; clarifies code comments.
 - Packaged backend path-listing passed in CI, but the screenshot's GUI/native IPC failure is still unverified on the new build. Do not claim it is fixed. Real Windows retest and diagnosis remain mandatory.
+
+### 2026-10-12 — Physical Windows picker returned invalid bridge response
+- User's updated screenshot shows `Cerberus desktop bridge: Invalid bridge response` in project picker. Native `bridge_request` previously attempted unconditional JSON decoding of any HTTP response, including plain-text 500 errors; the actual upstream cause is not confirmed.
+- `a4179ee` safely translates non-JSON HTTP responses into status-only JSON details without leaking local paths or tracebacks.
+- `8f1cce1` makes `/api/fs/list` tolerate Windows directory-entry metadata failures and disconnected drive checks.
+- `bb9a856` updates release gate. Fresh CI and physical Windows retest required. No release published and separate PipelineGuard repository untouched.

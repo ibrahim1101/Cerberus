@@ -62,3 +62,10 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - [ ] Verify contextual ? tooltips on settings fields, project/config selection, scan profiles and report export; audit remaining individual controls for help coverage before claiming every option has a tooltip.
 - [ ] Verify keyboard focus, tooltip accessibility, scrolling and no nested interactive controls on installed Windows build.
 - [ ] Run fresh React tests, Windows desktop validation and installer packaging on the final guide commit.
+
+### Physical Windows user acceptance evidence — October 12
+- User confirmed active scan cancellation control works and the native close-confirmation popup appears during scanning.
+- User confirmed the expanded How to Use guide is substantially improved and fullscreen scrolling no longer continues into empty space.
+- Do not extrapolate these confirmations to unreported export formats, Windows uninstall, bridge authentication, false-positive resolution or SmartScreen behavior.
+- Green packaged-sidecar run `38237311580` (application commit `091a0f8`) produced installer-preview and checksum artifacts; **their matching contents have not yet been independently checked**.
+- Documentation-only commits after the application commit require release SHA selection and final acceptance before publishing.

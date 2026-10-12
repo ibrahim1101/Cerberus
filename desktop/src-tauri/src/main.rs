@@ -15,7 +15,7 @@ fn hide_bridge_console(command: &mut Command) -> &mut Command {
     command
 }
 
-use std::sync::Mutex;
+use std::sync::{Mutex, atomic::{AtomicBool, Ordering}};
 use std::net::{TcpListener, TcpStream, SocketAddr};
 use std::io::{Read, Write};
 use std::thread;
@@ -27,6 +27,14 @@ use std::time::Duration;
 use tauri::State;
 
 struct ManagedChild(Mutex<Option<Child>>);
+struct CloseGate(AtomicBool);
+
+#[tauri::command]
+fn confirm_desktop_close(window: tauri::WebviewWindow, gate: State<'_, CloseGate>) -> Result<(), String> {
+    gate.0.store(true, Ordering::SeqCst);
+    window.close().map_err(|_| "Unable to close desktop window".into())
+}
+
 
 // Native window drops are buffered for the renderer to consume through the
 // already-proven Tauri invoke bridge; no optional JS event plugin is required.
@@ -276,9 +284,10 @@ fn main() {
     let managed_child = ManagedChild(Mutex::new(managed.map(|(child, _, _)| child)));
     tauri::Builder::default()
         .manage(managed_child)
+        .manage(CloseGate(AtomicBool::new(false)))
         .manage(DroppedPaths(Mutex::new(Vec::new())))
         .manage(BridgeState { client, token, port })
-        .invoke_handler(tauri::generate_handler![bridge_request, take_dropped_paths])
+        .invoke_handler(tauri::generate_handler![bridge_request, take_dropped_paths, confirm_desktop_close])
         .on_window_event(|window, event| {
             use tauri::Manager;
             if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {

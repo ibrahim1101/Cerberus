@@ -88,3 +88,9 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - This resolves the **previously observed folder-picker blocker for that tested build**; keep regression coverage and retest if installer binaries change.
 - This does **not** confirm JSON/SARIF export, OSV behavior, credential redaction, installer checksum matching, Defender/SmartScreen, authenticated endpoint rejection, or final release installation lifecycle.
 - React/backend CI [38279607009](https://github.com/ibrahim1101/Cerberus/actions/runs/38279607009) passed on `092676e`. Linux/macOS preview [38279419759](https://github.com/ibrahim1101/Cerberus/actions/runs/38279419759) was still running when checked.
+
+### 2026-10-12 — Final five Windows checks confirmed by user
+- **PASS (user-reported):** JSON and SARIF exports work; History displays completed scans and reports; OSV Intelligence handles online/offline states; CERBERUS closes and relaunches; Windows Defender/SmartScreen showed no unexpected security warnings on the tested machine.
+- These results complement the earlier user-confirmed folder picker, scan, findings and HTML export acceptance. They do not establish security approval by Defender or universal SmartScreen reputation.
+- Windows packaging workflow branch triggers were restricted to `main` in commit `8858be9` to remove the obsolete deleted feature branch.
+- **Remaining before publication:** validate exact release SHA and matching installer/checksum artifact, verify GPL/third-party redistribution compatibility, and confirm any outstanding bridge authentication/redaction and final installer lifecycle checks. Do not silently mark those as passed.

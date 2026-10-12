@@ -94,3 +94,11 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 - These results complement the earlier user-confirmed folder picker, scan, findings and HTML export acceptance. They do not establish security approval by Defender or universal SmartScreen reputation.
 - Windows packaging workflow branch triggers were restricted to `main` in commit `8858be9` to remove the obsolete deleted feature branch.
 - **Remaining before publication:** validate exact release SHA and matching installer/checksum artifact, verify GPL/third-party redistribution compatibility, and confirm any outstanding bridge authentication/redaction and final installer lifecycle checks. Do not silently mark those as passed.
+
+### 2026-10-12 — Independent installer artifact verification
+- Windows packaging workflow [38282741534](https://github.com/ibrahim1101/Cerberus/actions/runs/38282741534) and UI/backend CI [38282741427](https://github.com/ibrahim1101/Cerberus/actions/runs/38282741427) both passed for commit `f3dcd08db464db1c649e698f6d30719371486c3a`.
+- Downloaded both distinct Actions ZIP artifacts, extracted `Cerberus-Setup-0.1.0.exe` and `SHA256SUMS.txt`, computed SHA-256 independently, and confirmed exact equality.
+- **Verified installer SHA-256:** `b97723ef0509795b7c8d1ded65ab31ec5a4492026f639c898dcd0798b8fb1f4a`.
+- Checksum validates artifact integrity against the manifest from the same workflow, **not** publisher identity, malware-free status, or license compliance.
+- Final candidate source commit is `f3dcd08`; later documentation-only commits do not alter this installer but must not be mislabeled as the installer source SHA.
+- **Still pending:** third-party license/redistribution review, exact candidate's interactive installation acceptance if required, GitHub prerelease creation and asset upload. Do not claim published until release API confirms.

@@ -85,11 +85,27 @@ def fs_list(path: str | None = None):
         entries = sorted(target.iterdir(), key=lambda p: p.name.lower())[:800]
     except OSError as exc:
         _bad(f"Cannot read folder: {exc.strerror}")
-    drives = [f"{letter}:\\" for letter in string.ascii_uppercase if Path(f"{letter}:\\").is_dir()] if os.name == "nt" else []
+    # Windows junctions and disconnected drives can raise during metadata checks.
+    directories, json_files = [], []
+    for entry in entries:
+        try:
+            if entry.is_dir():
+                directories.append(entry.name)
+            elif entry.suffix.lower() == ".json" and entry.is_file():
+                json_files.append(entry.name)
+        except OSError:
+            continue
+    drives = []
+    if os.name == "nt":
+        for letter in string.ascii_uppercase:
+            drive = f"{letter}:\\"
+            try:
+                if Path(drive).is_dir():
+                    drives.append(drive)
+            except OSError:
+                continue
     return {"path": str(target), "parent": str(target.parent) if target.parent != target else None,
-            "drives": drives,
-            "directories": [e.name for e in entries if e.is_dir()],
-            "json_files": [e.name for e in entries if e.is_file() and e.suffix.lower() == ".json"]}
+            "drives": drives, "directories": directories, "json_files": json_files}
 
 
 @router.post("/config/validate")

@@ -10,6 +10,7 @@ import { copyText, isDesktop, openPath } from "@/lib/desktop";
 import { EmptyState, InlineError, PageHeader, Panel } from "@/components/common/Panel";
 import { StatusPill } from "@/components/common/Badges";
 import ReportPreview from "@/components/reports/ReportPreview";
+import HelpTip from "@/components/common/HelpTip";
 import { basename, fmtBytes, fmtDate } from "@/lib/format";
 
 const FORMATS = [
@@ -60,11 +61,11 @@ export default function Reports() {
               {FORMATS.map((f) => (
                 <button key={f.id} role="radio" aria-checked={format === f.id} onClick={() => setFormat(f.id)} data-testid={`reports-format-${f.id}`}
                   className={`rounded-xl border p-3 text-left transition-colors ${format === f.id ? "border-pg-accent/60 bg-pg-accent/[0.06]" : "border-pg-line hover:bg-pg-surface2/50"}`}>
-                  <p className="text-sm font-semibold">{f.label}</p><p className="text-[11px] text-pg-muted mt-1 leading-snug">{f.desc}</p>
+                  <p className="text-sm font-semibold">{f.label}<HelpTip title={`${f.label} export`}>{f.id === "html" ? "Readable in a browser; review summary, severity, findings and evidence." : f.id === "json" ? "Structured report for scripts or investigation; inspect summary, findings and dependencies." : "SARIF 2.1.0 for supported code-scanning viewers; review runs, results, rule IDs and locations."}</HelpTip></p><p className="text-[11px] text-pg-muted mt-1 leading-snug">{f.desc}</p>
                 </button>
               ))}
             </div>
-            <Label htmlFor="export-dir" className="text-xs text-pg-muted mt-4 block">Destination folder</Label>
+            <Label htmlFor="export-dir" className="text-xs text-pg-muted mt-4 block">Destination folder<HelpTip title="Export destination">Reports are saved here. Ensure the directory exists and is writable. Exports can contain sensitive file paths and evidence.</HelpTip></Label>
             <Input id="export-dir" value={dir} onChange={(e) => setDir(e.target.value)} className="mt-1.5 font-mono text-xs bg-pg-bg" data-testid="reports-destination-input" />
             <div className="mt-3"><InlineError message={error} testId="reports-error" /></div>
             <Button className="w-full mt-3" onClick={exportNow} disabled={!latest || busy || !dir} data-testid="reports-export-btn">

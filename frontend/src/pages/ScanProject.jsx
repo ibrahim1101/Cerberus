@@ -12,6 +12,7 @@ import { InlineError, Note, PageHeader, Panel } from "@/components/common/Panel"
 import PathPicker from "@/components/common/PathPicker";
 import ScanMonitor from "@/components/scan/ScanMonitor";
 import ProfilePicker from "@/components/scan/ProfilePicker";
+import HelpTip from "@/components/common/HelpTip";
 
 export default function ScanProject() {
   const { selection, setSelection, startScan, cancelScan, scanState, running, profiles, status } = useApp();
@@ -48,7 +49,7 @@ export default function ScanProject() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-7 flex flex-col gap-4">
           <Panel title="Project" testId="scan-project-panel">
-            <Label htmlFor="project-path" className="text-xs text-pg-muted">Project folder</Label>
+            <Label htmlFor="project-path" className="text-xs text-pg-muted">Project folder<HelpTip title="Project folder">Choose a local directory to scan. For accurate results, prefer source-code projects over compiled game binaries.</HelpTip></Label>
             <div className="flex gap-2 mt-1.5">
               <Input id="project-path" value={selection.project} disabled={running} placeholder="Absolute path to a local project folder"
                 onChange={(e) => setSelection({ project: e.target.value })} className="font-mono text-xs bg-pg-bg" data-testid="scan-project-path-input" />
@@ -59,7 +60,7 @@ export default function ScanProject() {
                 Use bundled sample project (intentionally insecure, fake credentials)
               </button>
             )}
-            <Label htmlFor="config-path" className="text-xs text-pg-muted mt-5 block">Configuration file (optional JSON)</Label>
+            <Label htmlFor="config-path" className="text-xs text-pg-muted mt-5 block">Configuration file (optional JSON)<HelpTip title="Scan policy">Optional engine policy file. Click Validate to check its syntax and constraints before scanning.</HelpTip></Label>
             <div className="flex gap-2 mt-1.5">
               <Input id="config-path" value={selection.config} disabled={running} placeholder="Leave blank to use engine defaults"
                 onChange={(e) => { setSelection({ config: e.target.value }); setConfigMsg(null); setConfigErr(null); }} className="font-mono text-xs bg-pg-bg" data-testid="scan-config-path-input" />
@@ -72,6 +73,7 @@ export default function ScanProject() {
             </div>
           </Panel>
           <Panel title="Scan profile" description="Behaviour shown is read from the engine's profile definitions." testId="scan-profile-panel">
+            <div className="mb-2 text-xs text-pg-muted">Choose how thoroughly to scan.<HelpTip title="Scan profile">Quick is faster; more comprehensive profiles may take longer. The available profiles and their behavior are defined by the engine.</HelpTip></div>
             <ProfilePicker profiles={profiles} value={selection.profile} disabled={running} onChange={(p) => setSelection({ profile: p })} />
           </Panel>
           <Panel title="Vulnerability intelligence" testId="scan-osv-panel">

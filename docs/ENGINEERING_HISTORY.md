@@ -627,3 +627,10 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `9529848` adds authenticated `/api/fs/list` integration checks with a nested directory and JSON config file, plus unauthenticated 401 rejection, to the existing offline scan and report integration suite. This runs on Ubuntu and Windows using the bundled engine.
 - `cc69f3b` adds this requirement to the beta release checklist.
 - User's physical `Invalid bridge response` screenshot remains a release blocker pending new installed-build retest. No release published; separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Cooperative scan cancellation prototype
+- Physical Windows GUI launches and a user is scanning a large game directory; user requested cancellation to avoid waiting after selecting the wrong target.
+- `3cd9c5d` adds cancellation event and `cancelled` terminal state in the Python scan manager, checks cancellation in progress/finding callbacks, and avoids completed report persistence when cancellation is observed before persistence.
+- `91f5c84` exposes authenticated `POST /api/scan/cancel` with 409 for idle scans. `a443bbc` adds API client. `f329b8e` adds React context handling/toasts. `c932323` adds Cancel Scan UI and cooperative latency warning.
+- `d3fdc2a` adds idle/unauthenticated API regression checks; `c08be36` adds release acceptance gates.
+- Limitation: this is cooperative checkpoint cancellation, not a hard stop for an in-progress blocking file or network operation. Fresh CI and physical Windows testing pending; not yet release-verified.

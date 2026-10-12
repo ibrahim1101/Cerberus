@@ -46,8 +46,15 @@ async function request(method, path, body) {
         statusText: result.statusText || "",
         json: async () => result.body,
       };
-    } catch {
-      throw new ApiError("Cerberus desktop bridge is unavailable", 0);
+    } catch (error) {
+      // Native IPC errors are intentionally restricted to a small, safe set.
+      // Do not expose arbitrary native error strings, which may contain local paths.
+      const safeErrors = new Set([
+        "Invalid desktop bridge request", "Desktop bridge is not initialized",
+        "Local bridge unavailable", "Invalid bridge response",
+      ]);
+      const reason = safeErrors.has(error?.message || error) ? (error?.message || error) : null;
+      throw new ApiError(reason ? `Cerberus desktop bridge: ${reason}` : "Cerberus desktop bridge is unavailable", 0);
     }
   } else {
     // Browser development retains its existing local HTTP bridge behavior.

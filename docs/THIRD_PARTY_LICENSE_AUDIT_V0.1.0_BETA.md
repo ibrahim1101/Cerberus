@@ -48,3 +48,8 @@ Downloaded `cerberus-windows-license-inventory` artifact **11765880854** and rea
 - Distinct npm package name/version nodes: **1,392**; missing license fields: `esprima@1.2.5`, `exit@0.1.2`, and first-party `frontend@0.1.0`.
 - Seven npm tree problems: invalid `react@19.0.0`, `date-fns@4.1.0`, `eslint@9.23.0`, `picomatch@2.3.2`; missing TypeScript peer dependencies for `fork-ts-checker-webpack-plugin@6.5.3`, `tsutils@3.21.0`, and `ts-node@10.9.2`.
 - Counts are from the workflow's installed dependency tree, **not** the final distributed payload. Review package LICENSE texts, shipping status and provenance before asserting compliance. Do not interpret successful build as resolving peer warnings.
+
+### 2026-10-13 — Independent package-license research
+- `esprima@1.2.5`: independently identified as **BSD-2-Clause** (Snyk package-version record and upstream Esprima BSD license). Sources: https://security.snyk.io/package/npm/esprima/1.2.5 and https://github.com/jquery/esprima/blob/main/LICENSE.BSD . Still verify license file of exact installed archive and whether included in distributable.
+- `exit@0.1.2`: upstream npm README explicitly says **MIT**, and Snyk detects MIT, despite npm metadata listing license as 'none'. Sources: https://www.npmjs.com/package/exit?activeTab=readme and https://security.snyk.io/package/npm/exit/0.1.2 . Still verify exact archive's license text and shipped/build-only classification.
+- **No evidence these two metadata omissions are incompatible licenses.** This does not clear other components or the full release.

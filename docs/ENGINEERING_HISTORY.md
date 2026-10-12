@@ -597,3 +597,9 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - Commit `957ff48` updates `.github/workflows/ci.yml` backend smoke on Ubuntu and Windows to test the repository's own `engine/` tree instead of a checkout of the separate PipelineGuard development branch. Adjusts backend paths for root checkout and preserves bridge security and offline integration checks.
 - Commit `47d6e3a` strengthens beta release checklist to require green CI using the bundled engine.
 - Fresh CI after this change is required; physical Windows acceptance and Locat rescan remain pending. No release published; separate PipelineGuard repository untouched.
+
+### 2026-10-12 — Physical Windows folder picker IPC blocker
+- User supplied a real Windows CERBERUS screenshot: main app rendered and status footer showed `Engine bridge: connected`, but project-folder browser reported `Cerberus desktop bridge is unavailable` and listed no directories. This is an observed release blocker; cause not yet established.
+- `cbda802` changes frontend native IPC error handling to expose only a small allowlist of safe native failure reasons (invalid request, uninitialized bridge, local bridge unavailable, invalid response), while keeping arbitrary native error text redacted.
+- `5d9d928` adds regression coverage for allowlisted vs private-path error handling. `a6ebb0d` adds the physical issue to release gates.
+- Must reproduce using newly packaged Windows build and inspect specific failure reason before claiming folder browser repaired. No release published; separate PipelineGuard repository unchanged.

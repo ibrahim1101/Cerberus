@@ -22,3 +22,16 @@ Branch: `feat/cerberus-ai-webhook-integrations`. This branch is independent of `
 5. Provider adapters, delivery templates and advanced AI capabilities.
 
 No integration is shipped or usable merely because this specification exists.
+
+## Expanded compatibility requirements (2026-10-12)
+User requests maximum extensibility with all providers configured through expandable navigation, not a separate block.
+- Navigation: expandable sections for AI Security Assistant, Threat Intelligence, Vulnerability Intelligence, Notifications & Automation, Security Platform Connectors. Provider submenus open configuration forms. Name opens feature; arrow expands. Persist collapsed state locally; keyboard and screen-reader accessible.
+- AI: Ollama, LM Studio, llama.cpp, vLLM, OpenAI-compatible, OpenAI, Anthropic, Gemini, Azure OpenAI, Groq, OpenRouter, Together, Hugging Face. Adapter capability flags distinguish chat, streaming, tool calling, embeddings, model discovery and vision; do not claim all models support all functions.
+- Threat intelligence: VirusTotal v3, AbuseIPDB v2, AlienVault OTX, GreyNoise, Shodan, Censys, URLhaus, MalwareBazaar. Optional manual lookups and safe auto-enrichment; no automatic file uploads.
+- Vulnerabilities: OSV, NVD, CISA KEV, GitHub Security Advisories, FIRST EPSS.
+- Notifications: generic HTTPS webhook, Discord, Slack, Teams Workflows, n8n, SMTP, optional email providers. Event filters for scan complete, critical findings, failures; test, retries, status, deduplication.
+- SIEM/SOAR: generic syslog/CEF/LEEF and JSON HTTP first, then Splunk HEC, Elastic, Wazuh, Microsoft Sentinel; STIX/TAXII feed support later.
+- Every provider: Enabled, Status, Configure, Test, Last checked, supported features, privacy disclosure, limits, and clear error messages. No invented online/offline status.
+- Credentials: OS credential store, masking, delete/rotate, no plaintext logs. Local AI should work with no API key.
+- License/terms: VirusTotal Public API has non-commercial restrictions and strict quotas; require appropriate licensed tier for commercial CERBERUS usage. AbuseIPDB use current APIv2.
+- Scope: aspirational provider catalog; adapters must be individually implemented and tested before marked supported.

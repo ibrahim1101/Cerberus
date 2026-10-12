@@ -1,6 +1,6 @@
 # CERBERUS v0.1.0 beta — release readiness gate
 
-Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/pipelineguard-ui`, branch `main`. Never modify the separate `PipelineGuard` repository as part of this release.
+Target: **October 13, 2026** (subject to evidence). Repository: `ibrahim1101/Cerberus`, branch `main`. Never modify the separate `PipelineGuard` repository as part of this release.
 
 ## Release scope and evidence
 
@@ -72,4 +72,13 @@ CI backend smoke now uses the repository's bundled engine (commit `957ff48`), ra
 
 ### Physical Windows uninstall confirmation
 - User reports CERBERUS uninstall succeeded on earlier installed Windows builds. Mark the uninstall behavior as user-verified for those builds; exact final release installer upgrade/uninstall remains a distinct acceptance check.
-- Linux/macOS preview work is isolated on `feat/cerberus-linux-macos-preview` and must not be advertised as supported in the Windows beta until CI and platform tests pass.
+- Linux/macOS portable preview source is merged into `main`, with CI on Linux x64, macOS Intel and macOS ARM64. Physical OS testing is deferred until volunteer feedback; do not advertise those previews as verified supported releases.
+
+
+### 2026-10-12 — Cross-platform acceptance policy and next Windows release checkpoint
+- User does not currently have Linux/macOS test hardware. Accept CI-only Linux/macOS **portable preview** artifacts as experimental; collect external tester feedback later. This is **not** native installer or production platform certification.
+- Linux/macOS workflow trigger was corrected to `main` in `4802eb2`. [Workflow run 38279419759](https://github.com/ibrahim1101/Cerberus/actions/runs/38279419759) was still running at the last check; never mark green until completed.
+- Main React/backend CI [38279419623](https://github.com/ibrahim1101/Cerberus/actions/runs/38279419623) passed on `4802eb2`.
+- Windows packaged sidecar [38277217579](https://github.com/ibrahim1101/Cerberus/actions/runs/38277217579) passed on documentation commit `5e762bc8`. Final release installer requires same-commit CI and physical acceptance.
+- The separate `ibrahim1101/PipelineGuard` repository is now archived, not deleted; CERBERUS bundles the engine.
+- **Next blocking action:** user physical Windows retest of the latest installer, especially folder-picker native IPC and report export. Do not publish a beta solely on CI success.

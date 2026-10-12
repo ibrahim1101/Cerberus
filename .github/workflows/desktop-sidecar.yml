@@ -212,6 +212,25 @@ jobs:
             $report += [pscustomobject]@{ package=$name; installed=(Test-Path -LiteralPath $folder); license_files=@($files | ForEach-Object { $_.Name }) }
           }
           $report | ConvertTo-Json -Depth 5 | Set-Content -Path 'dist/license-inventory/npm-license-file-review.json' -Encoding utf8
+      - name: Stage reviewed npm and font notices in Windows distribution
+        shell: pwsh
+        run: |
+          $source = 'dist/license-inventory/npm-license-texts'
+          $destination = 'dist/cerberus-runtime/THIRD_PARTY_LICENSES'
+          $required = @(
+            'esprima--LICENSE.BSD',
+            'exit--LICENSE-MIT',
+            'fontsource-chakra-petch--OFL.txt',
+            'fontsource-ibm-plex-sans--OFL.txt',
+            'fontsource-jetbrains-mono--OFL.txt'
+          )
+          New-Item -ItemType Directory -Path $destination -Force | Out-Null
+          foreach ($name in $required) {
+            $file = Join-Path $source $name
+            if (-not (Test-Path -LiteralPath $file)) { throw "Missing required third-party license text: $name" }
+            Copy-Item -LiteralPath $file -Destination (Join-Path $destination $name) -Force
+          }
+          Write-Host 'Five verified third-party license texts staged into packaged runtime'
       - name: Stage native desktop executable beside packaged runtime
         shell: pwsh
         run: |

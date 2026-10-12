@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, FileJson, FolderOpen, Info, Loader2, Play } from "lucide-react";
+import { CheckCircle2, FileJson, FolderOpen, Info, Loader2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import ScanMonitor from "@/components/scan/ScanMonitor";
 import ProfilePicker from "@/components/scan/ProfilePicker";
 
 export default function ScanProject() {
-  const { selection, setSelection, startScan, running, profiles, status } = useApp();
+  const { selection, setSelection, startScan, cancelScan, scanState, running, profiles, status } = useApp();
   const [picker, setPicker] = useState(null);
   const [configMsg, setConfigMsg] = useState(null);
   const [configErr, setConfigErr] = useState(null);
@@ -93,9 +93,10 @@ export default function ScanProject() {
             {running ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Play className="h-5 w-5 mr-2" />}
             {running ? "Scan in progress" : "Start scan"}
           </Button>
+          {running && <Button variant="outline" className="border-pg-crit text-pg-crit" onClick={cancelScan} disabled={Boolean(scanState.cancel_requested)} data-testid="scan-cancel-btn"><Square className="h-4 w-4 mr-2" />{scanState.cancel_requested ? "Cancellation requested…" : "Cancel scan"}</Button>}
           <ScanMonitor />
           <p className="text-xs text-pg-muted flex gap-1.5 leading-relaxed" data-testid="scan-cancel-note">
-            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" /> The current engine has no safe cancellation hook, so a started scan runs to completion in the background. The interface stays responsive meanwhile.
+            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" /> Cancellation is cooperative: the scan stops at the next supported checkpoint, which may take time during large files or network requests. Cancelled scans do not produce a completed report.
           </p>
         </div>
       </div>

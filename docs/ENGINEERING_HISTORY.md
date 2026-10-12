@@ -634,3 +634,8 @@ Prefer small commits and inspect CI after each batch. Preserve the engine reposi
 - `91f5c84` exposes authenticated `POST /api/scan/cancel` with 409 for idle scans. `a443bbc` adds API client. `f329b8e` adds React context handling/toasts. `c932323` adds Cancel Scan UI and cooperative latency warning.
 - `d3fdc2a` adds idle/unauthenticated API regression checks; `c08be36` adds release acceptance gates.
 - Limitation: this is cooperative checkpoint cancellation, not a hard stop for an in-progress blocking file or network operation. Fresh CI and physical Windows testing pending; not yet release-verified.
+
+### 2026-10-12 — Tauri native close-guard compile repair
+- Desktop validation run `38230448592` failed Rust E0599 because `tauri::Window` has no `get_webview` method. Earlier `window.eval` had also failed; the close-confirmation feature is not release verified.
+- Commit `3c97475` resolves the main webview through the app manager (`window.app_handle().get_webview_window("main")`) before invoking its script evaluation method.
+- Fresh Rust/Windows packaging CI and real Windows close-confirmation acceptance remain required. No release published; separate PipelineGuard repository untouched.

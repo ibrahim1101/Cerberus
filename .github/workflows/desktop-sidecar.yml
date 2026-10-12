@@ -195,6 +195,277 @@ jobs:
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'License inventory summary failed' }
           Write-Host 'Dependency inventory captured; redistribution obligations require manual review'
+      - name: Collect exact npm package license texts for release review
+        shell: pwsh
+        run: |
+          $dest = 'dist/license-inventory/npm-license-texts'
+          New-Item -ItemType Directory -Path $dest -Force | Out-Null
+          $packages = @(
+            @{ Name='esprima'; Path='esprima' },
+            @{ Name='exit'; Path='exit' },
+            @{ Name='chakra-petch'; Path='@fontsource/chakra-petch' },
+            @{ Name='ibm-plex-sans'; Path='@fontsource/ibm-plex-sans' },
+            @{ Name='jetbrains-mono'; Path='@fontsource/jetbrains-mono' }
+          )
+          $report = @()
+          foreach ($pkg in $packages) {
+            $folder = Join-Path 'frontend/node_modules' $pkg.Path
+            $matches = @(Get-ChildItem -Path $folder -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^(LICENSE|LICENCE|COPYING|OFL)([.\\-_].*)?
+        shell: pwsh
+        run: |
+          $app = 'dist/cerberus-standalone'
+          New-Item -ItemType Directory -Path $app -Force | Out-Null
+          Copy-Item desktop/src-tauri/target/release/pipelineguard-desktop.exe "$app/Cerberus.exe" -Force
+          Copy-Item dist/cerberus-runtime "$app/cerberus-runtime" -Recurse -Force
+          if (-not (Test-Path "$app/Cerberus.exe")) { throw 'Missing native Cerberus executable' }
+          if (-not (Test-Path "$app/cerberus-runtime/cerberus-bridge.exe")) { throw 'Missing adjacent bridge executable' }
+          if (-not (Test-Path "$app/cerberus-runtime/engine/pipelineguard")) { throw 'Missing scanner engine' }
+      - name: Verify staged runtime layout matches native launcher contract
+        shell: pwsh
+        run: |
+          $root = (Resolve-Path dist/cerberus-standalone).Path
+          $exe = Join-Path $root 'Cerberus.exe'
+          $runtime = Join-Path (Split-Path $exe -Parent) 'cerberus-runtime'
+          if (-not (Test-Path (Join-Path $runtime 'cerberus-bridge.exe'))) { throw 'Launcher sidecar discovery would fail' }
+          if (-not (Test-Path (Join-Path $runtime 'engine/pipelineguard'))) { throw 'Launcher engine discovery would fail' }
+      - name: Verify standalone payload has no source-only launch dependencies
+        shell: pwsh
+        run: |
+          $app = 'dist/cerberus-standalone'
+          $required = @(
+            "$app/Cerberus.exe",
+            "$app/cerberus-runtime/cerberus-bridge.exe",
+            "$app/cerberus-runtime/engine/pipelineguard"
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) { throw "Missing required standalone payload path: $path" }
+          }
+          $bridge = Get-Item "$app/cerberus-runtime/cerberus-bridge.exe"
+          $desktop = Get-Item "$app/Cerberus.exe"
+          if ($bridge.Length -lt 100000 -or $desktop.Length -lt 100000) { throw 'Unexpectedly small native executable' }
+      - name: Smoke test the exact staged preview runtime
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path dist/cerberus-standalone).Path
+          $runtime = Join-Path $app 'cerberus-runtime'
+          $env:CERBERUS_BRIDGE_PORT = '18766'
+          $env:PIPELINEGUARD_ENGINE_PATH = Join-Path $runtime 'engine'
+          $env:PIPELINEGUARD_DESKTOP_MODE = '1'
+          $env:PIPELINEGUARD_TOKEN = 'ci-staged-preview-token'
+          $env:PIPELINEGUARD_DATA_DIR = Join-Path $env:RUNNER_TEMP 'cerberus-preview-data'
+          $proc = Start-Process -FilePath (Join-Path $runtime 'cerberus-bridge.exe') -WorkingDirectory $app -PassThru -WindowStyle Hidden
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 100; $i++) {
+              if ($proc.HasExited) { throw 'Staged preview bridge exited before readiness' }
+              try {
+                $response = Invoke-WebRequest -Uri 'http://127.0.0.1:18766/api/status' -Headers @{'X-PipelineGuard-Token'='ci-staged-preview-token'} -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch { }
+              Start-Sleep -Milliseconds 200
+            }
+            if (-not $ready) { throw 'Staged preview bridge did not become authenticated-ready' }
+            # Exercise the folder browser endpoint against the exact staged Windows runtime.
+            $folder = Join-Path $env:RUNNER_TEMP 'Cerberus Folder Picker Fixture'
+            New-Item -ItemType Directory -Force -Path $folder | Out-Null
+            New-Item -ItemType Directory -Force -Path (Join-Path $folder 'Nested Project') | Out-Null
+            $encoded = [System.Uri]::EscapeDataString($folder)
+            $listing = Invoke-RestMethod -Uri "http://127.0.0.1:18766/api/fs/list?path=$encoded" -Headers @{'X-PipelineGuard-Token'='ci-staged-preview-token'} -TimeoutSec 5
+            if ($listing.path -ne $folder -or 'Nested Project' -notin $listing.directories) {
+              throw 'Packaged Windows folder browser failed to list nested project'
+            }
+            Write-Host 'Packaged Windows folder browser endpoint passed'
+
+          } finally {
+            if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
+      - name: Smoke test native desktop process startup
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path dist/cerberus-standalone).Path
+          $exe = Join-Path $app 'Cerberus.exe'
+          Remove-Item Env:CERBERUS_MANAGED_DEV -ErrorAction SilentlyContinue
+          Remove-Item Env:CERBERUS_DEV_BRIDGE_TOKEN -ErrorAction SilentlyContinue
+          $proc = Start-Process -FilePath $exe -WorkingDirectory $app -PassThru
+          try {
+            Start-Sleep -Seconds 8
+            $proc.Refresh()
+            if ($proc.HasExited) { throw "Native Cerberus process exited early: $($proc.ExitCode)" }
+            Write-Host "Native Cerberus desktop process remained alive after startup"
+          } finally {
+            taskkill.exe /PID $proc.Id /T /F | Out-Null
+            $global:LASTEXITCODE = 0
+          }
+      - name: Verify native launcher spawns packaged bridge (headless CI)
+        shell: pwsh
+        run: |
+          $app = (Resolve-Path dist/cerberus-standalone).Path
+          $exe = Join-Path $app 'Cerberus.exe'
+          $bridgePath = (Resolve-Path (Join-Path $app 'cerberus-runtime/cerberus-bridge.exe')).Path
+          Remove-Item Env:CERBERUS_MANAGED_DEV -ErrorAction SilentlyContinue
+          Remove-Item Env:CERBERUS_DEV_BRIDGE_TOKEN -ErrorAction SilentlyContinue
+          $desktop = Start-Process -FilePath $exe -WorkingDirectory $app -PassThru
+          $bridge = $null
+          try {
+            for ($i = 0; $i -lt 60; $i++) {
+              $desktop.Refresh()
+              if ($desktop.HasExited) { throw "Desktop exited before spawning managed bridge: $($desktop.ExitCode)" }
+              $bridge = Get-CimInstance Win32_Process -Filter "ParentProcessId=$($desktop.Id)" -ErrorAction SilentlyContinue |
+                Where-Object { $_.ExecutablePath -eq $bridgePath } | Select-Object -First 1
+              if ($bridge) { break }
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not $bridge) { throw 'Native desktop did not spawn its packaged bridge' }
+            Write-Host "Native launcher spawned managed bridge PID $($bridge.ProcessId)"
+            # GitHub-hosted Windows CI can launch Tauri without an interactive desktop window.
+            # Graceful GUI close and Rust Drop cleanup require an interactive Windows test.
+            Write-Host 'Packaged bridge parent-child ownership verified; GUI shutdown deferred to interactive test.'
+          } finally {
+            taskkill.exe /PID $desktop.Id /T /F 2>$null | Out-Null
+            $global:LASTEXITCODE = 0
+            if ($bridge) { Stop-Process -Id $bridge.ProcessId -Force -ErrorAction SilentlyContinue }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-standalone-preview
+          path: dist/cerberus-standalone/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Build per-user NSIS installer from validated standalone payload
+        shell: pwsh
+        run: |
+          $compiler = "${env:ProgramFiles(x86)}\\NSIS\\makensis.exe"
+          if (-not (Test-Path $compiler)) {
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              Write-Host "Installing NSIS via Chocolatey (attempt $attempt/3)"
+              choco install nsis --yes --no-progress --limit-output
+              if ((Test-Path $compiler)) { break }
+              if ($attempt -lt 3) { Start-Sleep -Seconds (10 * $attempt) }
+            }
+          }
+          if (-not (Test-Path $compiler)) { throw 'NSIS compiler missing after three Chocolatey attempts' }
+          $payload = (Resolve-Path dist/cerberus-standalone).Path
+          $output = Join-Path (Resolve-Path dist).Path "Cerberus-Setup-0.1.0.exe"
+          & $compiler /V2 "/DCERBERUS_PAYLOAD=$payload" "/DCERBERUS_OUTPUT=$output" desktop/installer/cerberus.nsi
+          if ($LASTEXITCODE -ne 0) { throw 'NSIS installer build failed' }
+          if (-not (Test-Path dist/Cerberus-Setup-0.1.0.exe)) { throw 'Installer output missing' }
+      - name: Smoke test silent installation and uninstallation
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path dist/Cerberus-Setup-0.1.0.exe).Path
+          $target = Join-Path $env:LOCALAPPDATA 'Programs/Cerberus'
+          # Run the exact shipped script before NSIS to expose preflight failures.
+          & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File desktop/installer/check-running.ps1
+          $preflightCode = $LASTEXITCODE
+          Write-Host "Preflight diagnostic exit code: $preflightCode"
+          if ($preflightCode -ne 0) { throw "Preflight diagnostic failed with $preflightCode" }
+          $install = Start-Process -FilePath $setup -ArgumentList '/S' -PassThru
+          if (-not $install.WaitForExit(90000)) {
+            Stop-Process -Id $install.Id -Force -ErrorAction SilentlyContinue
+            throw 'Silent installer timed out after 90 seconds (possible hidden dialog or preflight hang)'
+          }
+          Write-Host "Silent installer exit code: $($install.ExitCode)"
+          if ($install.ExitCode -ne 0) { throw "Installer exited with $($install.ExitCode)" }
+          if (-not (Test-Path (Join-Path $target 'Cerberus.exe'))) { throw 'Installed native executable missing' }
+          if (-not (Test-Path (Join-Path $target 'cerberus-runtime/cerberus-bridge.exe'))) { throw 'Installed sidecar missing' }
+          if (-not (Test-Path (Join-Path $target 'cerberus-runtime/engine/pipelineguard'))) { throw 'Installed scanner engine missing' }
+          $uninstaller = Join-Path $target 'Uninstall.exe'
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList '/S' -PassThru
+          if (-not $uninstall.WaitForExit(90000)) {
+            Stop-Process -Id $uninstall.Id -Force -ErrorAction SilentlyContinue
+            throw 'Silent uninstaller timed out after 90 seconds'
+          }
+          Write-Host "Silent uninstaller exit code: $($uninstall.ExitCode)"
+          if ($uninstall.ExitCode -ne 0) { throw "Uninstaller exited with $($uninstall.ExitCode)" }
+          Start-Sleep -Seconds 2
+          if (Test-Path (Join-Path $target 'Cerberus.exe')) { throw 'Uninstall left native executable behind' }
+      - name: Generate SHA-256 checksum for Windows installer
+        shell: pwsh
+        run: |
+          $installer = (Resolve-Path dist/Cerberus-Setup-0.1.0.exe).Path
+          $hash = (Get-FileHash -Path $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          $checksumPath = Join-Path (Resolve-Path dist).Path 'SHA256SUMS.txt'
+          [System.IO.File]::WriteAllText($checksumPath, "$hash  Cerberus-Setup-0.1.0.exe`n")
+          Write-Host "Installer SHA-256: $hash"
+          if (-not (Test-Path $checksumPath)) { throw 'Installer checksum output missing' }
+      - name: Verify installer checksum matches release payload
+        shell: pwsh
+        run: |
+          $installer = (Resolve-Path dist/Cerberus-Setup-0.1.0.exe).Path
+          $checksum = (Get-Content dist/SHA256SUMS.txt -Raw).Trim()
+          if ($checksum -notmatch '^([a-f0-9]{64})  Cerberus-Setup-0[.]1[.]0[.]exe$') { throw 'Malformed release checksum manifest' }
+          $expected = $Matches[1]
+          $actual = (Get-FileHash -Path $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'Installer SHA-256 does not match release checksum manifest' }
+          Write-Host "Verified installer checksum: $actual"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-nsis-installer-checksum
+          path: dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-nsis-installer-preview
+          path: dist/Cerberus-Setup-0.1.0.exe
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-license-inventory
+          path: dist/license-inventory/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Verify packaged sidecar fails closed without desktop token
+        shell: pwsh
+        run: |
+          $env:CERBERUS_BRIDGE_PORT = '18763'
+          $env:PIPELINEGUARD_ENGINE_PATH = (Resolve-Path engine).Path
+          $env:PIPELINEGUARD_DESKTOP_MODE = '1'
+          Remove-Item Env:PIPELINEGUARD_TOKEN -ErrorAction SilentlyContinue
+          $env:PSNativeCommandUseErrorActionPreference = 'false'
+          & dist/cerberus-bridge/cerberus-bridge.exe
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -eq 0) { throw 'Sidecar unexpectedly started without token' }
+          Write-Host "Expected fail-closed sidecar exit code: $exitCode"
+          $global:LASTEXITCODE = 0
+      - name: Test packaged authenticated bridge startup
+        shell: pwsh
+        run: |
+          $env:CERBERUS_BRIDGE_PORT = '18764'
+          $env:PIPELINEGUARD_ENGINE_PATH = (Resolve-Path engine).Path
+          $env:PIPELINEGUARD_DESKTOP_MODE = '1'
+          $env:PIPELINEGUARD_TOKEN = 'ci-packaged-sidecar-token'
+          $exe = (Resolve-Path dist/cerberus-bridge/cerberus-bridge.exe).Path
+          $proc = Start-Process -FilePath $exe -WorkingDirectory (Resolve-Path backend).Path -PassThru -WindowStyle Hidden
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 100; $i++) {
+              if ($proc.HasExited) { throw 'Packaged sidecar exited before readiness' }
+              try {
+                $response = Invoke-WebRequest -Uri 'http://127.0.0.1:18764/api/status' -Headers @{'X-PipelineGuard-Token'='ci-packaged-sidecar-token'} -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch { }
+              Start-Sleep -Milliseconds 200
+            }
+            if (-not $ready) { throw 'Packaged sidecar did not become authenticated-ready' }
+            try {
+              Invoke-WebRequest -Uri 'http://127.0.0.1:18764/api/status' -TimeoutSec 3 | Out-Null
+              throw 'Unauthenticated request was accepted'
+            } catch {
+              if ($_.Exception.Response.StatusCode.value__ -ne 401) { throw }
+            }
+          } finally {
+            if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
+ })
+            foreach ($match in $matches) {
+              Copy-Item $match.FullName (Join-Path $dest ($pkg.Name + '--' + $match.Name)) -Force
+            }
+            $report += [pscustomobject]@{ package=$pkg.Path; installed=(Test-Path $folder); license_files=@($matches | ForEach-Object { $_.Name }) }
+          }
+          $report | ConvertTo-Json -Depth 5 | Set-Content -Path 'dist/license-inventory/npm-license-file-review.json' -Encoding utf8
+          Write-Host 'Exact installed npm license files captured where available; missing files require manual review'
       - name: Stage native desktop executable beside packaged runtime
         shell: pwsh
         run: |

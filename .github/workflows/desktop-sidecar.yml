@@ -280,6 +280,71 @@ jobs:
           [System.IO.File]::WriteAllText($checksumPath, "$hash  Cerberus-Setup-0.1.0.exe`n")
           Write-Host "Installer SHA-256: $hash"
           if (-not (Test-Path $checksumPath)) { throw 'Installer checksum output missing' }
+      - name: Verify installer checksum matches release payload
+        shell: pwsh
+        run: |
+          $installer = (Resolve-Path dist/Cerberus-Setup-0.1.0.exe).Path
+          $checksum = (Get-Content dist/SHA256SUMS.txt -Raw).Trim()
+          if ($checksum -notmatch '^([a-f0-9]{64})  Cerberus-Setup-0\.1\.0\.exe
+          path: dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cerberus-windows-nsis-installer-preview
+          path: dist/Cerberus-Setup-0.1.0.exe
+          if-no-files-found: error
+          retention-days: 7
+      - name: Verify packaged sidecar fails closed without desktop token
+        shell: pwsh
+        run: |
+          $env:CERBERUS_BRIDGE_PORT = '18763'
+          $env:PIPELINEGUARD_ENGINE_PATH = (Resolve-Path engine).Path
+          $env:PIPELINEGUARD_DESKTOP_MODE = '1'
+          Remove-Item Env:PIPELINEGUARD_TOKEN -ErrorAction SilentlyContinue
+          # PowerShell 7 / GitHub Actions can turn native nonzero exits into
+          # terminating errors before we inspect the expected failure.
+          $env:PSNativeCommandUseErrorActionPreference = 'false'
+          & dist/cerberus-bridge/cerberus-bridge.exe
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -eq 0) { throw 'Sidecar unexpectedly started without token' }
+          Write-Host "Expected fail-closed sidecar exit code: $exitCode"
+          # Reset native process status so GitHub's pwsh wrapper exits successfully.
+          $global:LASTEXITCODE = 0
+      - name: Test packaged authenticated bridge startup
+        shell: pwsh
+        run: |
+          $env:CERBERUS_BRIDGE_PORT = '18764'
+          $env:PIPELINEGUARD_ENGINE_PATH = (Resolve-Path engine).Path
+          $env:PIPELINEGUARD_DESKTOP_MODE = '1'
+          $env:PIPELINEGUARD_TOKEN = 'ci-packaged-sidecar-token'
+          $exe = (Resolve-Path dist/cerberus-bridge/cerberus-bridge.exe).Path
+          $proc = Start-Process -FilePath $exe -WorkingDirectory (Resolve-Path backend).Path -PassThru -WindowStyle Hidden
+          try {
+            $ready = $false
+            for ($i = 0; $i -lt 100; $i++) {
+              if ($proc.HasExited) { throw 'Packaged sidecar exited before readiness' }
+              try {
+                $response = Invoke-WebRequest -Uri 'http://127.0.0.1:18764/api/status' -Headers @{'X-PipelineGuard-Token'='ci-packaged-sidecar-token'} -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ready = $true; break }
+              } catch { }
+              Start-Sleep -Milliseconds 200
+            }
+            if (-not $ready) { throw 'Packaged sidecar did not become authenticated-ready' }
+            try {
+              Invoke-WebRequest -Uri 'http://127.0.0.1:18764/api/status' -TimeoutSec 3 | Out-Null
+              throw 'Unauthenticated request was accepted'
+            } catch {
+              if ($_.Exception.Response.StatusCode.value__ -ne 401) { throw }
+            }
+          } finally {
+            if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+          }
+) { throw 'Malformed release checksum manifest' }
+          $expected = $Matches[1]
+          $actual = (Get-FileHash -Path $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'Installer SHA-256 does not match release checksum manifest' }
+          Write-Host "Verified installer checksum: $actual"
       - uses: actions/upload-artifact@v4
         with:
           name: cerberus-windows-nsis-installer-checksum
